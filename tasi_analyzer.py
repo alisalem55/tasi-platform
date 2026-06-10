@@ -1,12 +1,11 @@
 import sys
 import subprocess
-import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
-# التأكد من تثبيت الحزم المطلوبة
-for package in ["streamlit", "plotly"]:
+# 1. التأكد من تثبيت الحزم السحابية المطلوبة للرسوم والويب والملفات التخزينية
+for package in ["streamlit", "plotly", "streamlit-cookies-controller"]:
     try:
-        __import__(package)
+        __import__(package.replace('-', '_'))
     except ImportError:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
 
@@ -16,76 +15,90 @@ import numpy as np
 from tvDatafeed import TvDatafeed, Interval
 import time
 import plotly.graph_objects as go
+from streamlit_cookies_controller import CookieController
 
-# --- خوارزمية ذكية لاستخراج بصمة فريدة لجهاز ومتصفح المستخدم الحالي ---
+# استدعاء متحكم الذاكرة الصلبة للجهاز (Cookies)
+controller = CookieController()
+
+# --- خوارزمية ذكية لاستخراج بصمة فريدة لجهاز المستخدم ---
 def get_device_fingerprint():
     headers = st.context.headers
     user_agent = headers.get("User-Agent", "Unknown_Device")
     accept_lang = headers.get("Accept-Language", "Unknown_Lang")
     return f"{user_agent}_{accept_lang}"
 
-# --- إعدادات واجهة منصة الويب التفاعلية الموحدة ---
-st.set_page_config(page_title="منصة تاسي الذكية المحمية ضد مشاركة الحسابات", layout="wide")
+# --- إعدادات واجهة منصة الويب التفاعلية ---
+st.set_page_config(page_title="منصة تاسي الذكية ذات التفعيل الثابت", layout="wide")
 
 st.markdown("""
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; margin-bottom:25px; text-align:right; direction:rtl;">
-        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة الحماية الصارمة للجهاز الواحد</h1>
+        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة الحفظ التلقائي في الجهاز</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:bold;">
-            نظام تصفية كامل السوق في صفحة واحدة | قفل تلقائي للمفاتيح على جهاز مستخدم واحد ومنع التشارك 🔒
+            سحب حي من TradingView | حفظ الهوية تلقائياً in المتصفح لمرة واحدة | حماية صارمة لمنع التشارك 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# ================= قاعدة بيانات المشتركين والمفاتيح (قائمة التحكم الخاصة بك) =================
-if 'CUSTOM_LICENSES' not in st.session_state:
-    st.session_state['CUSTOM_LICENSES'] = {
-        "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "device_id": None},
-        "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31", "device_id": None}
-    }
-
-MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
-# =========================================================================================
-
+# ================= 🛡️ قاعدة البيانات الثابتة للمفاتيح والمشتركين للأبد =================
+# لإضافة مشترك جديد يدوياً، فقط ضع سطراً جديداً هنا وارفعه، وسيبقى محفوظاً ولن يختفي أبداً
+FIXED_LICENSES = {
+    "ADMIN-TASI-2026": {"owner": "المشرف الرئيسي (أنت)", "expiry": "2030-12-31", "role": "admin"},
+    "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "role": "user"},
+    "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31", "role": "user"},
+    "TASI-NEW-5566": {"owner": "مشترك جديد", "expiry": "2026-08-30", "role": "user"}
+}
+# ======================================================================================================
 current_device_id = get_device_fingerprint()
 
-# شاشة تفعيل الحماية والاشتراكات الجانبية
-st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8;'>🔑 حماية الاشتراكات</h2>", unsafe_allow_html=True)
-user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري:", "", type="password").strip()
+# قراءة المفتاح المخزن في جهاز المستخدم تلقائياً إن وجد سابقاً
+saved_key = controller.get("tasi_saved_license_key")
 
+st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8;'>🔑 حماية الاشتراكات</h2>", unsafe_allow_html=True)
+
+# إذا لم يكن هناك مفتاح مخزن في الجهاز، يظهر صندوق الإدخال
+if not saved_key:
+    user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري (لمرة واحدة فقط):", "", type="password").strip()
+    if st.sidebar.button("💾 تفعيل وحفظ في هذا الجهاز"):
+        if user_key in FIXED_LICENSES:
+            controller.set("tasi_saved_license_key", user_key)
+            st.sidebar.success("تم تفعيل الجهاز بنجاح! جاري تحديث المنصة...")
+            time.sleep(1)
+            st.rerun()
+        else:
+            st.sidebar.error("المفتاح غير صحيح!")
+    user_key_active = user_key
+else:
+    # إذا كان المفتاح مخزناً سابقاً في المتصفح، يقرأه الكود تلقائياً ويعفيه من الكتابة
+    user_key_active = saved_key
+    st.sidebar.info(f"🔒 تم تسجيل الدخول تلقائياً عبر ذاكرة الجهاز.")
+    if st.sidebar.button("🚪 تسجيل الخروج / مسح الجهاز"):
+        controller.remove("tasi_saved_license_key")
+        st.rerun()
+
+# التحقق من الصلاحيات والقيود الأمنية
 is_admin = False
 is_access_granted = False
 block_reason = ""
 
-# التعديل الجوهري: فحص رمز الآدمن بشكل منفصل وقاطع في السطر الأول لمنع الحظر
-if user_key == MASTER_ADMIN_KEY:
-    is_admin = True
-    is_access_granted = True
-    st.sidebar.success("🔓 تم الدخول بصلاحية المشرف الرئيسي!")
-
-elif user_key in st.session_state['CUSTOM_LICENSES']:
-    license_info = st.session_state['CUSTOM_LICENSES'][user_key]
-    expiry_str = license_info["expiry"]
-    expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d").date()
+if user_key_active in FIXED_LICENSES:
+    license_info = FIXED_LICENSES[user_key_active]
+    expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
     
     if datetime.now().date() > expiry_date:
-        block_reason = f"عذراً، هذا المفتاح منتهي الصلاحية منذ تاريخ: {expiry_str}"
+        block_reason = f"عذراً، هذا الاشتراك منتهي منذ تاريخ: {license_info['expiry']}"
     else:
-        if license_info["device_id"] is None:
-            st.session_state['CUSTOM_LICENSES'][user_key]["device_id"] = current_device_id
-            is_access_granted = True
-            st.sidebar.success(f"🎯 تفعيل أول! تم ربط وقفل هذا المفتاح على جهازك الحالي بنجاح.")
-        elif license_info["device_id"] == current_device_id:
-            is_access_granted = True
-            st.sidebar.success(f"مرحباً {license_info['owner']}! اشتراكك نشط ومطابق لجهازك.")
+        is_access_granted = True
+        if license_info.get("role") == "admin":
+            is_admin = True
+            st.sidebar.success("🔓 صلاحية المشرف نشطة")
         else:
-            block_reason = "⚠️ خطأ حماية: هذا المفتاح مفعل ومقفل على جهاز آخر بالفعل! يرجى طلب اشتراك جديد لجهازك الحالي."
+            st.sidebar.success(f"👤 العضو: {license_info['owner']}")
+elif user_key_active:
+    block_reason = "مفتاح التفعيل غير مسجل بنظام الصقر!"
 
-elif user_key:
-    block_reason = "خطأ: مفتاح التفعيل غير صحيح أو غير مسجل بالنظام!"
-
-# عرض رسالة القفل وحظر البيانات عند غياب التوثيق الصحيح
+# حجب المنصة بالكامل في حالة غياب التفعيل الصحيح
 if not is_access_granted:
-    display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري الخاص بك في شريط الحماية الجانبي لفتح جداول الأولويات والشارتات الفنية لكامل أسهم السوق."
+    display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية."
     st.markdown(f"""
         <div style="background-color:#7f1d1d; padding:30px; border-radius:12px; margin-top:50px; text-align:right; direction:rtl;">
             <h2 style="color:#fee2e2; margin:0;">🔒 محطة التداول مغلقة (منطقة مدفوعة ومقفلة للجهاز الواحد)</h2>
@@ -95,35 +108,14 @@ if not is_access_granted:
         </div>
     """, unsafe_allow_html=True)
     st.stop()
-# فتح لوحة التحكم السرية للمشرف فقط (توليد الأكواد وإلغاء قفل الأجهزة يدويّاً)
-if is_admin:
-    st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة (توليد المفاتيح والتحكم بالأجهزة)</h2>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        sub_name = st.text_input("اسم المشترك الجديد:", "أبو سلطان")
-    with col2:
-        sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
-    with col3:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("✨ توليد الكود السري فوراً", type="secondary"):
-            random_id = str(uuid.uuid4()).split('-').upper()
-            new_key = f"TASI-{random_id}"
-            calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            st.session_state['CUSTOM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "device_id": None}
-            st.success(f"تم صنع المفتاح بنجاح لـ {sub_name}: {new_key}")
-            
-    st.markdown("<p style='text-align:right; font-weight:bold;'>🔄 إعادة تعيين قفل جهاز مشترك الحالي (عند تغيير الجوال):</p>", unsafe_allow_html=True)
-    reset_key = st.text_input("أدخل المفتاح السري المراد فك قفله لربطه بجهاز جديد:", "")
-    if st.button("🔓 فك قفل الجهاز المرتبط بالمفتاح"):
-        if reset_key in st.session_state['CUSTOM_LICENSES']:
-            st.session_state['CUSTOM_LICENSES'][reset_key]["device_id"] = None
-            st.success("تم بنجاح فك قفل الجهاز السابق! المفتاح جاهز ليقفل على أول جهاز جديد يدخل منه.")
-        else:
-            st.error("المفتاح غير موجود بالنظام.")
 
-    st.markdown("<p style='text-align:right; font-weight:bold;'>📋 قائمة تتبع المفاتيح وحالة بصمات الأجهزة المقفلة عليها:</p>", unsafe_allow_html=True)
-    st.json(st.session_state['CUSTOM_LICENSES'])
+# لوحة تتبع الإدارة (تعرض لك المفاتيح النشطة لتنسخها وتبيعها للمشتركين)
+if is_admin:
+    st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة ومراقبة الاشتراكات</h2>", unsafe_allow_html=True)
+    st.write("المفاتيح المعتمدة حالياً في المنصة والمتاحة للبيع والتوزيع:")
+    st.json(FIXED_LICENSES)
     st.markdown("---")
+
 # --- حاسبة المخاطر الجانبية الشغالة تفاعلياً دائماً للأعضاء ---
 st.sidebar.markdown("<h3 style='text-align:right; color:#a855f7;'>🧮 حاسبة إدارة المخاطر</h3>", unsafe_allow_html=True)
 capital = st.sidebar.number_input("إجمالي رأس المال (ريال)", min_value=1000, value=50000, step=5000)
@@ -134,33 +126,19 @@ if entry_price > sl_price:
     allowed_loss = capital * (risk_percent / 100)
     shares = int(allowed_loss / (entry_price - sl_price))
     st.sidebar.info(f"عدد الأسهم المستهدفة: **{shares} سهم**\n\nالسيولة المطلوبة: **{shares * entry_price:.2f} ريال**")
-
 # ================= مصفوفة كامل أسهم السوق السعودي (تاسي) موحدة وجاهزة بعد إضافة جرير =================
 TICKERS = {
-    # البنوك والاستثمار
     '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
     '1060': 'الأول (SAB)', '1080': 'العربي الوطني', '1120': 'مصرف الراجحي', '1140': 'بنك البلاد',
     '1150': 'مصرف الإنماء', '1180': 'البنك الأهلي السعودي',
-    
-    # الطاقة والمرافق
     '2082': 'أكوا باور', '2222': 'أرامكو السعودية', '4030': 'البحري', '5110': 'الكهرباء السعودية', '2083': 'الدريس',
-    
-    # المواد الأساسية والبتروكيماويات
     '2010': 'سابك', '1211': 'معادن', '2020': 'سابك للمغذيات', '2250': 'المجموعة السعودية', '2310': 'سبكيم العالمية', 
     '2050': 'التصنيع', '2380': 'بترورابغ', '2002': 'المتقدمة', '1304': 'اليمامة للحديد',
-    
-    # الأسمنت
     '3010': 'أسمنت العربية', '3020': 'أسمنت اليمامة', '3030': 'أسمنت السعودية', '3040': 'أسمنت القصيم',
     '3050': 'أسمنت الجنوب', '3060': 'أسمنت ينبع', '3080': 'أسمنت الشرقية', '3003': 'أسمنت المدينة',
-    
-    # الاتصالات والتقنية
     '7010': 'STC (الاتصالات)', '7020': 'موبايلي', '7030': 'زين السعودية', '7200': 'تداول السعودية', '7204': 'علم', '4260': 'المعمر',
-    
-    # الرعاية الصحية والأغذية
     '4001': 'أسواق العثيم', '4002': 'المواساة', '4004': 'دله الصحية', '4007': 'الحمادي', '4013': 'سليمان الحبيب',
     '2280': 'المراعي', '2270': 'سدافكو', '6010': 'نادك', '2050': 'صافولا', '2100': 'وفرة',
-    
-    # العقارات والنقل والتأمين والخدمات الاستهلاكية (تم دمج جرير هنا بالرمز 4190)
     '4300': 'دار الأركان', '4020': 'العقارية', '4150': 'الرياض للتعمير', '4250': 'جبل عمر', '4321': 'سينومي سنترز',
     '4040': 'سابتكو', '4140': 'ساسكو', '4190': 'جرير', '8010': 'التعاونية للتأمين', '8020': 'ميدغلف', '8210': 'بوبا العربية'
 }
@@ -172,12 +150,6 @@ FINANCIAL_DATA = {
     '4190': {'PE': 15.8, 'Sector': 'الخدمات الاستهلاكية'}
 }
 
-
-FINANCIAL_DATA = {
-    '1120': {'PE': 19.2, 'Sector': 'البنوك'}, '1180': {'PE': 14.5, 'Sector': 'البنوك'},
-    '1150': {'PE': 16.4, 'Sector': 'البنوك'}, '2222': {'PE': 16.0, 'Sector': 'الطاقة'},
-    '2010': {'PE': 24.1, 'Sector': 'البتروكيماويات'}, '7010': {'PE': 15.1, 'Sector': 'الاتصالات'}
-}
 def calculate_indicators(df):
     df['SMA_20'] = df['close'].rolling(window=20).mean()
     delta = df['close'].diff()
@@ -202,9 +174,9 @@ def combine_and_decide(ticker, tech_row):
     if points >= 1: return "🟢 شراء (BUY)", points
     elif points == 0: return "🟠 انتظار (HOLD)", points
     else: return "🔴 بيع (SELL)", points
-# زر سحب وإطلاق فرز كامل السوق موحد وثابت في أعلى الصفحة
+# زر التحديث الكلي للسوق في الأعلى
 if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن", type="primary"):
-    with st.spinner("جاري جلب وتحليل كامل أسهم تاسي (أكثر من 65 شركة قيادية)..."):
+    with st.spinner("جاري جلب وتحليل كامل أسهم تاسي (أكثر من 66 شركة قيادية)..."):
         try:
             tv = TvDatafeed()
         except:
@@ -247,7 +219,7 @@ if 'df_display' in st.session_state:
         elif "🟠" in str(val): return 'background-color: #fff3cd; color: #856404; font-weight: bold;'
         return ''
 
-    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي المتجاوب
+    # 1. محرك الاستعلام السريع برقم السهم والشارت
     st.markdown("<h3 style='text-align:right; color:#38bdf8;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "").strip()
     if search_code and search_code in all_dfs:
