@@ -3,3 +3,5 @@ pandas
 numpy
 tradingview-datafeed
 plotly
+schedule
+openpyxl
