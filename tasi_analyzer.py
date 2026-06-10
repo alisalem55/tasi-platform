@@ -2,7 +2,7 @@ import sys
 import subprocess
 from datetime import datetime
 
-# استدعاء الحزم مباشرة بعد اعتماد تثبيتها الآمن من ملف requirements
+# التأكد من استدعاء الحزم السحابية المطلوبة للرسوم والويب والملفات التخزينية
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -34,6 +34,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================= 🛡️ قاعدة البيانات الثابتة للمفاتيح والمشتركين للأبد =================
+# لإضافة مشترك جديد يدوياً، فقط ضع سطراً جديداً هنا وارفعه، وسيبقى محفوظاً ولن يختفي أبداً
 FIXED_LICENSES = {
     "ADMIN-TASI-2026": {"owner": "المشرف الرئيسي (أنت)", "expiry": "2030-12-31", "role": "admin"},
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "role": "user"},
@@ -41,7 +42,6 @@ FIXED_LICENSES = {
     "TASI-NEW-5566": {"owner": "مشترك جديد", "expiry": "2026-08-30", "role": "user"}
 }
 # ======================================================================================================
-
 current_device_id = get_device_fingerprint()
 
 # قراءة المفتاح المخزن في جهاز المستخدم تلقائياً إن وجد سابقاً
