@@ -1,6 +1,7 @@
 import sys
 import subprocess
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
 
 # التأكد من استدعاء الحزم السحابية المطلوبة للرسوم والويب والملفات التخزينية
 import streamlit as st
@@ -22,26 +23,27 @@ def get_device_fingerprint():
     return f"{user_agent}_{accept_lang}"
 
 # --- إعدادات واجهة منصة الويب التفاعلية ---
-st.set_page_config(page_title="منصة تاسي الذكية ذات التفعيل الثابت", layout="wide")
+st.set_page_config(page_title="منصة تاسي الذكية ذات التفعيل الثابت والتوليد", layout="wide")
 
 st.markdown("""
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; margin-bottom:25px; text-align:right; direction:rtl;">
-        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة الحفظ التلقائي في الجهاز</h1>
+        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة التوليد وحفظ الجهاز</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:bold;">
-            سحب حي من TradingView | حفظ الهوية تلقائياً في المتصفح لمرة واحدة | حماية صارمة لمنع التشارك 🔒
+            توليد فوري للمفاتيح من جوال المشرف | تذكر تلقائي للمشتركين في المتصفح | حماية كامل السوق 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# ================= 🛡️ قاعدة البيانات الثابتة للمفاتيح والمشتركين للأبد =================
-# لإضافة مشترك جديد يدوياً، فقط ضع سطراً جديداً هنا وارفعه، وسيبقى محفوظاً ولن يختفي أبداً
-FIXED_LICENSES = {
-    "ADMIN-TASI-2026": {"owner": "المشرف الرئيسي (أنت)", "expiry": "2030-12-31", "role": "admin"},
-    "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "role": "user"},
-    "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31", "role": "user"},
-    "TASI-NEW-5566": {"owner": "مشترك جديد", "expiry": "2026-08-30", "role": "user"}
-}
+# ================= 🛡️ الذاكرة الدائمة للمفاتيح المفتوحة =================
+if 'SYSTEM_LICENSES' not in st.session_state:
+    st.session_state['SYSTEM_LICENSES'] = {
+        "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "role": "user"},
+        "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31", "role": "user"}
+    }
+
+MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
 # ======================================================================================================
+
 current_device_id = get_device_fingerprint()
 
 # قراءة المفتاح المخزن في جهاز المستخدم تلقائياً إن وجد سابقاً
@@ -49,20 +51,19 @@ saved_key = controller.get("tasi_saved_license_key")
 
 st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8;'>🔑 حماية الاشتراكات</h2>", unsafe_allow_html=True)
 
-# إذا لم يكن هناك مفتاح مخزن في الجهاز، يظهر صندوق الإدخال
+# إدارة شاشة الدخول والتذكر التلقائي بالجهاز
 if not saved_key:
     user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري (لمرة واحدة فقط):", "", type="password").strip()
     if st.sidebar.button("💾 تفعيل وحفظ في هذا الجهاز"):
-        if user_key in FIXED_LICENSES:
+        if user_key == MASTER_ADMIN_KEY or user_key in st.session_state['SYSTEM_LICENSES']:
             controller.set("tasi_saved_license_key", user_key)
-            st.sidebar.success("تم تفعيل الجهاز بنجاح! جاري تحديث المنصة...")
+            st.sidebar.success("تم تفعيل الجهاز بنجاح! جاري التحديث...")
             time.sleep(1)
             st.rerun()
         else:
             st.sidebar.error("المفتاح غير صحيح!")
     user_key_active = user_key
 else:
-    # إذا كان المفتاح مخزناً سابقاً في المتصفح، يقرأه الكود تلقائياً ويعفيه من الكتابة
     user_key_active = saved_key
     st.sidebar.info(f"🔒 تم تسجيل الدخول تلقائياً عبر ذاكرة الجهاز.")
     if st.sidebar.button("🚪 تسجيل الخروج / مسح الجهاز"):
@@ -74,23 +75,22 @@ is_admin = False
 is_access_granted = False
 block_reason = ""
 
-if user_key_active in FIXED_LICENSES:
-    license_info = FIXED_LICENSES[user_key_active]
+if user_key_active == MASTER_ADMIN_KEY:
+    is_admin = True
+    is_access_granted = True
+    st.sidebar.success("🔓 صلاحية المشرف نشطة")
+elif user_key_active in st.session_state['SYSTEM_LICENSES']:
+    license_info = st.session_state['SYSTEM_LICENSES'][user_key_active]
     expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
     
     if datetime.now().date() > expiry_date:
         block_reason = f"عذراً، هذا الاشتراك منتهي منذ تاريخ: {license_info['expiry']}"
     else:
         is_access_granted = True
-        if license_info.get("role") == "admin":
-            is_admin = True
-            st.sidebar.success("🔓 صلاحية المشرف نشطة")
-        else:
-            st.sidebar.success(f"👤 العضو: {license_info['owner']}")
+        st.sidebar.success(f"👤 العضو: {license_info['owner']}")
 elif user_key_active:
     block_reason = "مفتاح التفعيل غير مسجل بنظام الصقر!"
 
-# حجب المنصة بالكامل في حالة غياب التفعيل الصحيح
 if not is_access_granted:
     display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية."
     st.markdown(f"""
@@ -102,12 +102,26 @@ if not is_access_granted:
         </div>
     """, unsafe_allow_html=True)
     st.stop()
-
-# لوحة تتبع الإدارة (تعرض لك المفاتيح النشطة لتنسخها وتبيعها للمشتركين)
+# === إعادة خانة وبطاقة توليد الأكواد السرية للمشرف (أنت) من المتصفح مباشرة ===
 if is_admin:
-    st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة ومراقبة الاشتراكات</h2>", unsafe_allow_html=True)
-    st.write("المفاتيح المعتمدة حالياً في المنصة والمتاحة للبيع والتوزيع:")
-    st.json(FIXED_LICENSES)
+    st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة (توليد مفاتيح المشتركين الجديدة)</h2>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        sub_name = st.text_input("اسم المشترك الجديد:", "أبو سلطان")
+    with col2:
+        sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
+    with col3:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("✨ توليد الكود السري فوراً", type="secondary"):
+            # صنع مفتاح عشوائي غير قابل للتخمين وحفظه في قاعدة البيانات
+            random_id = str(uuid.uuid4()).split('-')[0].upper()
+            new_key = f"TASI-{random_id}"
+            calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
+            st.session_state['SYSTEM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "role": "user"}
+            st.success(f"🎉 تم صنع وتثبيت المفتاح لـ {sub_name} بنجاح! انسخه الآن: {new_key}")
+            
+    st.markdown("<p style='text-align:right; font-weight:bold;'>📋 قائمة المفاتيح الفعالة حالياً في موقعك ومواعيد انتهائها:</p>", unsafe_allow_html=True)
+    st.json(st.session_state['SYSTEM_LICENSES'])
     st.markdown("---")
 
 # --- حاسبة المخاطر الجانبية الشغالة تفاعلياً دائماً للأعضاء ---
@@ -227,7 +241,7 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250)
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. جدول فرص الشراء الذهبية المرتبة للأولويات لكامل السوق
+    # 2. جدول أولويات الشراء الذهبية
     st.markdown("<h3 style='text-align:right; color:#22c55e;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     if not buy_df.empty:
@@ -235,7 +249,7 @@ if 'df_display' in st.session_state:
     else:
         st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل
+    # 3. جدول ومراقبة كامل صفقات تاسي
     st.markdown("<h3 style='text-align:right; color:#94a3b8;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
     st.dataframe(df_display.style.map(color_rows, subset=['القرار والفلترة']), use_container_width=True, height=450)
 else:
