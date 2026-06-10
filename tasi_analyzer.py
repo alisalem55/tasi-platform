@@ -19,11 +19,9 @@ import plotly.graph_objects as go
 
 # --- خوارزمية ذكية لاستخراج بصمة فريدة لجهاز ومتصفح المستخدم الحالي ---
 def get_device_fingerprint():
-    # جمع خصائص المتصفح والشاشة والمنصة لبناء معرف فريد لا يتكرر لكل جهاز
     headers = st.context.headers
     user_agent = headers.get("User-Agent", "Unknown_Device")
     accept_lang = headers.get("Accept-Language", "Unknown_Lang")
-    # دمج الخصائص في نص واحد يمثل بصمة الجهاز الرقمية
     return f"{user_agent}_{accept_lang}"
 
 # --- إعدادات واجهة منصة الويب التفاعلية الموحدة ---
@@ -39,7 +37,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================= قاعدة بيانات المشتركين والمفاتيح (قائمة التحكم الخاصة بك) =================
-# ميزة "device_id" المضافة: إذا كانت None تعني أن المفتاح جديد، وبمجرد دخول المشترك لأول مرة يقفل الكود على جهازه فوراً
 if 'CUSTOM_LICENSES' not in st.session_state:
     st.session_state['CUSTOM_LICENSES'] = {
         "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "device_id": None},
@@ -49,7 +46,6 @@ if 'CUSTOM_LICENSES' not in st.session_state:
 MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
 # =========================================================================================
 
-# قراءة بصمة الجهاز الحالي الذي يحاول فتح الموقع الآن
 current_device_id = get_device_fingerprint()
 
 # شاشة تفعيل الحماية والاشتراكات الجانبية
@@ -60,37 +56,34 @@ is_admin = False
 is_access_granted = False
 block_reason = ""
 
+# التعديل الجوهري: فحص رمز الآدمن بشكل منفصل وقاطع في السطر الأول لمنع الحظر
 if user_key == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
     st.sidebar.success("🔓 تم الدخول بصلاحية المشرف الرئيسي!")
+
 elif user_key in st.session_state['CUSTOM_LICENSES']:
     license_info = st.session_state['CUSTOM_LICENSES'][user_key]
     expiry_str = license_info["expiry"]
     expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d").date()
     
-    # 1. التحقق من تاريخ انتهاء الصلاحية أولاً
     if datetime.now().date() > expiry_date:
         block_reason = f"عذراً، هذا المفتاح منتهي الصلاحية منذ تاريخ: {expiry_str}"
     else:
-        # 2. نظام قفل ومطابقة بصمة الجهاز الصارم لمنع تشغيل كود واحد على جهازين
         if license_info["device_id"] is None:
-            # إذا كان الكود جديداً ولم يستخدم بعد، يتم ربطه وقفله ببصمة هذا الجهاز فوراً وللأبد
             st.session_state['CUSTOM_LICENSES'][user_key]["device_id"] = current_device_id
             is_access_granted = True
             st.sidebar.success(f"🎯 تفعيل أول! تم ربط وقفل هذا المفتاح على جهازك الحالي بنجاح.")
         elif license_info["device_id"] == current_device_id:
-            # إذا كانت بصمة الجهاز الحالي تطابق تماماً الجهاز الأصلي المسجل، يفتح الموقع
             is_access_granted = True
             st.sidebar.success(f"مرحباً {license_info['owner']}! اشتراكك نشط ومطابق لجهازك.")
         else:
-            # إذا حاول فتح الكود من جوال أو كمبيوتر آخر، يتم حجب البيانات وإظهار خطأ الحماية
-            block_reason = "⚠️ خطأ حماية: هذا المفتاح مفعل ومقفل على جهاز آخر بالفعل! يرجى التواصل مع الإدارة لطلب اشتراك جديد لجهازك الحالي."
+            block_reason = "⚠️ خطأ حماية: هذا المفتاح مفعل ومقفل على جهاز آخر بالفعل! يرجى طلب اشتراك جديد لجهازك الحالي."
 
 elif user_key:
     block_reason = "خطأ: مفتاح التفعيل غير صحيح أو غير مسجل بالنظام!"
 
-# عرض رسالة القفل إذا لم تتحقق الشروط الأمنية للمشترك أو بصمة الجهاز
+# عرض رسالة القفل وحظر البيانات عند غياب التوثيق الصحيح
 if not is_access_granted:
     display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري الخاص بك في شريط الحماية الجانبي لفتح جداول الأولويات والشارتات الفنية لكامل أسهم السوق."
     st.markdown(f"""
@@ -102,8 +95,7 @@ if not is_access_granted:
         </div>
     """, unsafe_allow_html=True)
     st.stop()
-
-# فتح لوحة تحكم الإدارة للمشرف فقط (تتضمن تصفير بصمة جهاز العميل إن أراد تغيير جواله)
+# فتح لوحة التحكم السرية للمشرف فقط (توليد الأكواد وإلغاء قفل الأجهزة يدويّاً)
 if is_admin:
     st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة (توليد المفاتيح والتحكم بالأجهزة)</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
@@ -114,27 +106,26 @@ if is_admin:
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("✨ توليد الكود السري فوراً", type="secondary"):
-            random_id = str(uuid.uuid4()).split('-')[0].upper()
+            random_id = str(uuid.uuid4()).split('-').upper()
             new_key = f"TASI-{random_id}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            # تعيين ديفايس آي دي بـ None ليكون جاهزاً للقفل على أول جهاز يستخدمه
             st.session_state['CUSTOM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "device_id": None}
-            st.success(f"تم صنع المفتاح بنجاح: {new_key}")
+            st.success(f"تم صنع المفتاح بنجاح لـ {sub_name}: {new_key}")
             
-    # زر إضافي ذكي لتصفير أجهزة المشتركين إذا قام أحدهم بشراء جوال جديد وأراد نقل الخدمة يدوياً بموافقتك
     st.markdown("<p style='text-align:right; font-weight:bold;'>🔄 إعادة تعيين قفل جهاز مشترك الحالي (عند تغيير الجوال):</p>", unsafe_allow_html=True)
     reset_key = st.text_input("أدخل المفتاح السري المراد فك قفله لربطه بجهاز جديد:", "")
     if st.button("🔓 فك قفل الجهاز المرتبط بالمفتاح"):
         if reset_key in st.session_state['CUSTOM_LICENSES']:
             st.session_state['CUSTOM_LICENSES'][reset_key]["device_id"] = None
-            st.success("تم بنجاح فك قفل الجهاز السابق! المفتاح جاهز الآن ليقفل على أول جهاز جديد يدخل منه.")
+            st.success("تم بنجاح فك قفل الجهاز السابق! المفتاح جاهز ليقفل على أول جهاز جديد يدخل منه.")
         else:
-            st.sidebar.error("المفتاح غير موجود.")
+            st.error("المفتاح غير موجود بالنظام.")
 
     st.markdown("<p style='text-align:right; font-weight:bold;'>📋 قائمة تتبع المفاتيح وحالة بصمات الأجهزة المقفلة عليها:</p>", unsafe_allow_html=True)
     st.json(st.session_state['CUSTOM_LICENSES'])
     st.markdown("---")
-# --- حاسبة المخاطر الجانبية ---
+
+# --- حاسبة المخاطر الجانبية الشغالة تفاعلياً دائماً للأعضاء ---
 st.sidebar.markdown("<h3 style='text-align:right; color:#a855f7;'>🧮 حاسبة إدارة المخاطر</h3>", unsafe_allow_html=True)
 capital = st.sidebar.number_input("إجمالي رأس المال (ريال)", min_value=1000, value=50000, step=5000)
 risk_percent = st.sidebar.slider("نسبة المخاطرة في الصفقة (%)", 1.0, 5.0, 2.0, 0.5)
@@ -189,17 +180,16 @@ def calculate_indicators(df):
 
 def combine_and_decide(ticker, tech_row):
     points = 0
-    justifications = []
     if tech_row['close'] > tech_row['SMA_20'] and tech_row['RSI'] < 65: points += 1
     elif tech_row['close'] < tech_row['SMA_20'] or tech_row['RSI'] > 75: points -= 1
-    if tech_row['MACD_Line'] > tech_row['Signal_Line']: points += 1; justifications.append("ماكد إيجابي")
-    else: points -= 1; justifications.append("ماكد سلبي")
+    if tech_row['MACD_Line'] > tech_row['Signal_Line']: points += 1
+    else: points -= 1
     fin = FINANCIAL_DATA.get(ticker, {'PE': 20.0, 'Sector': 'أخرى'})
     if fin['PE'] < 17: points += 1
     if points >= 1: return "🟢 شراء (BUY)", points
     elif points == 0: return "🟠 انتظار (HOLD)", points
     else: return "🔴 بيع (SELL)", points
-# زر سحب كامل بيانات السوق موحد وثابت في الأعلى
+# زر سحب وإطلاق فرز كامل السوق موحد وثابت في أعلى الصفحة
 if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن", type="primary"):
     with st.spinner("جاري جلب وتحليل كامل أسهم تاسي (أكثر من 65 شركة قيادية)..."):
         try:
@@ -228,7 +218,7 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
                         'مؤشر RSI': round(last_candle['RSI'], 1), 'مكرر P/E': fin['PE'], 
                         'قوة الإشارة': score, 'القرار والفلترة': rec
                     })
-                time.sleep(0.04) # حماية تمنع الحظر المؤقت
+                time.sleep(0.04)
             except: continue
 
         st.session_state['df_display'] = pd.DataFrame(final_report)
@@ -244,7 +234,7 @@ if 'df_display' in st.session_state:
         elif "🟠" in str(val): return 'background-color: #fff3cd; color: #856404; font-weight: bold;'
         return ''
 
-    # 1. محرك الاستعلام السريع برقم السهم والشارت
+    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي المتجاوب
     st.markdown("<h3 style='text-align:right; color:#38bdf8;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "").strip()
     if search_code and search_code in all_dfs:
