@@ -2,13 +2,7 @@ import sys
 import subprocess
 from datetime import datetime
 
-# 1. التأكد من تثبيت الحزم السحابية المطلوبة للرسوم والويب والملفات التخزينية
-for package in ["streamlit", "plotly", "streamlit-cookies-controller"]:
-    try:
-        __import__(package.replace('-', '_'))
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
-
+# استدعاء الحزم مباشرة بعد اعتماد تثبيتها الآمن من ملف requirements
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -34,13 +28,12 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; margin-bottom:25px; text-align:right; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة الحفظ التلقائي في الجهاز</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:bold;">
-            سحب حي من TradingView | حفظ الهوية تلقائياً in المتصفح لمرة واحدة | حماية صارمة لمنع التشارك 🔒
+            سحب حي من TradingView | حفظ الهوية تلقائياً في المتصفح لمرة واحدة | حماية صارمة لمنع التشارك 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 
 # ================= 🛡️ قاعدة البيانات الثابتة للمفاتيح والمشتركين للأبد =================
-# لإضافة مشترك جديد يدوياً، فقط ضع سطراً جديداً هنا وارفعه، وسيبقى محفوظاً ولن يختفي أبداً
 FIXED_LICENSES = {
     "ADMIN-TASI-2026": {"owner": "المشرف الرئيسي (أنت)", "expiry": "2030-12-31", "role": "admin"},
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31", "role": "user"},
@@ -48,6 +41,7 @@ FIXED_LICENSES = {
     "TASI-NEW-5566": {"owner": "مشترك جديد", "expiry": "2026-08-30", "role": "user"}
 }
 # ======================================================================================================
+
 current_device_id = get_device_fingerprint()
 
 # قراءة المفتاح المخزن في جهاز المستخدم تلقائياً إن وجد سابقاً
