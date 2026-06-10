@@ -1,8 +1,9 @@
 import sys
 import subprocess
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
 
-# التأكد من تثبيت الحزم المطلوبة
+# التأكد من تثبيت الحزم المطلوبة للرسوم والويب
 for package in ["streamlit", "plotly"]:
     try:
         __import__(package)
@@ -16,50 +17,86 @@ from tvDatafeed import TvDatafeed, Interval
 import time
 import plotly.graph_objects as go
 
-# --- إعدادات واجهة منصة الويب الاحترافية ---
-st.set_page_config(page_title="منصة تاسي الذكية المقسمة", layout="wide")
+# --- إعدادات واجهة منصة الويب التفاعلية ---
+st.set_page_config(page_title="منصة تاسي الاحترافية الذكية", layout="wide")
 
 st.markdown("""
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; margin-bottom:25px; text-align:right; direction:rtl;">
-        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية - نظام القطاعات المجزأة (تاسي)</h1>
+        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية - نظام القطاعات وإدارة المشتركين</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:bold;">
-            تحليل السوق السعودي مقسم إلى 4 أجزاء لتسريع السحب ومنع التعليق | حماية مشفرة 🔒
+            تحليل السوق السعودي مقسم إلى 4 أجزاء لتسريع السحب | لوحة إدارة سرية لتوليد مفاتيح التفعيل 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# ================= قاعدة بيانات المشتركين والمفاتيح =================
-ACTIVE_LICENSES = {
-    "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
-    "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"}
-}
+# ================= قاعدة بيانات المشتركين والمفاتيح (قائمة التحكم الخاصة بك) =================
+if 'CUSTOM_LICENSES' not in st.session_state:
+    st.session_state['CUSTOM_LICENSES'] = {
+        "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
+        "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"}
+    }
+
+# الكود السري الخاص بك أنت كمشرف لفتح لوحة التحكم الذكية
+MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
+# =========================================================================================
 
 # شاشة تفعيل الحماية والاشتراكات الجانبية
 st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8;'>🔑 حماية الاشتراكات</h2>", unsafe_allow_html=True)
 user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري:", "", type="password").strip()
 
+is_admin = False
 is_access_granted = False
-if user_key and user_key in ACTIVE_LICENSES:
-    expiry_date = datetime.strptime(ACTIVE_LICENSES[user_key]["expiry"], "%Y-%m-%d").date()
+
+# 1. التحقق هل المستخدم هو المشرف (أنت)
+if user_key == MASTER_ADMIN_KEY:
+    is_admin = True
+    is_access_granted = True
+    st.sidebar.success("🔓 تم الدخول بصلاحية المشرف الرئيسي للمنصة!")
+
+# 2. التحقق هل المستخدم مشترك عادي
+elif user_key in st.session_state['CUSTOM_LICENSES']:
+    expiry_str = st.session_state['CUSTOM_LICENSES'][user_key]["expiry"]
+    expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d").date()
     if datetime.now().date() <= expiry_date:
         is_access_granted = True
-        st.sidebar.success(f"مرحباً {ACTIVE_LICENSES[user_key]['owner']}! الاشتراك نشط.")
+        st.sidebar.success(f"مرحباً {st.session_state['CUSTOM_LICENSES'][user_key]['owner']}! الاشتراك نشط حتى: {expiry_str}")
     else:
-        st.sidebar.error("المفتاح منتهي!")
+        st.sidebar.error(f"المفتاح منتهي منذ: {expiry_str}")
 elif user_key:
     st.sidebar.error("المفتاح غير صحيح!")
 
+# منع تشغيل الموقع إذا لم يتم إدخال كود صحيح
 if not is_access_granted:
     st.markdown("""
         <div style="background-color:#7f1d1d; padding:30px; border-radius:12px; margin-top:50px; text-align:right; direction:rtl;">
-            <h2 style="color:#fee2e2; margin:0;">🔒 محطة التداول مغلقة (منطقة مدفوعة)</h2>
+            <h2 style="color:#fee2e2; margin:0;">🔒 محطة التداول مغلقة (منطقة مدفوعة للأعضاء)</h2>
             <p style="color:#fca5a5; margin:10px 0 0 0; font-size:16px;">
-                يرجى إدخال مفتاح التفعيل السري في شريط الحماية الجانبي لفتح أجزاء المنصة.
+                يرجى إدخال مفتاح التفعيل السري الخاص بك في شريط الحماية الجانبي لفتح جداول الأولويات والشارتات التفاعلية.
             </p>
         </div>
     """, unsafe_allow_html=True)
     st.stop()
 
+# فتح لوحة تحكم الإدارة للمشرف فقط
+if is_admin:
+    st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة (توليد مفاتيح المشتركين)</h2>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        sub_name = st.text_input("اسم المشترك الجديد:", "أبو سلطان")
+    with col2:
+        sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
+    with col3:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("✨ توليد الكود السري فوراً", type="secondary"):
+            random_id = str(uuid.uuid4()).split('-')[0].upper()
+            new_key = f"TASI-{random_id}"
+            calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
+            st.session_state['CUSTOM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry}
+            st.success(f"تم صنع المفتاح لـ {sub_name} بنجاح!")
+            
+    st.markdown("<p style='text-align:right; font-weight:bold;'>📋 قائمة مفاتيح المشتركين النشطة حالياً في موقعك:</p>", unsafe_allow_html=True)
+    st.json(st.session_state['CUSTOM_LICENSES'])
+    st.markdown("---")
 # --- حاسبة المخاطر الجانبية ---
 st.sidebar.markdown("<h3 style='text-align:right; color:#a855f7;'>🧮 حاسبة إدارة المخاطر</h3>", unsafe_allow_html=True)
 capital = st.sidebar.number_input("إجمالي رأس المال (ريال)", min_value=1000, value=50000, step=5000)
@@ -70,7 +107,8 @@ if entry_price > sl_price:
     allowed_loss = capital * (risk_percent / 100)
     shares = int(allowed_loss / (entry_price - sl_price))
     st.sidebar.info(f"الأسهم المستهدفة: **{shares} سهم**\n\nالسيولة المطلوبة: **{shares * entry_price:.2f} ريال**")
-# ================= لوحة اختيار الأجزاء الأربعة لتفادي ثقل البيانات =================
+
+# ================= لوحة اختيار الأجزاء الأربعة =================
 st.sidebar.markdown("---")
 st.sidebar.markdown("<h3 style='text-align:right; color:#22c55e;'>📂 اختر جزء السوق للتحليل</h3>", unsafe_allow_html=True)
 market_part = st.sidebar.radio(
@@ -81,33 +119,30 @@ market_part = st.sidebar.radio(
      "الجزء 4: العقارات والنقل والتأمين"]
 )
 
-# تصفية الشركات بناءً على الجزء المختار
 TICKERS = {}
 if "الجزء 1" in market_part:
     TICKERS = {
         '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
         '1060': 'الأول (SAB)', '1080': 'العربي الوطني', '1120': 'مصرف الراجحي', '1140': 'بنك البلاد',
         '1150': 'مصرف الإنماء', '1180': 'البنك الأهلي السعودي', '2082': 'أكوا باور', '2222': 'أرامكو السعودية', 
-        '5110': 'الكهرباء السعودية', '7010': 'STC (الاتصالات)', '7020': 'موبايلي', '7030': 'زين السعودية', '7040': 'عذيب'
+        '5110': 'الكهرباء السعودية', '7010': 'STC (الاتصالات)', '7020': 'موبايلي', '7030': 'زين السعودية'
     }
 elif "الجزء 2" in market_part:
     TICKERS = {
         '2010': 'سابك', '1211': 'معادن', '2020': 'سابك للمغذيات', '2250': 'المجموعة السعودية', '2310': 'سبكيم العالمية', 
         '2050': 'التصنيع', '2380': 'بترورابغ', '2002': 'المتقدمة', '1304': 'اليمامة للحديد', '1320': 'أنابيب الشرق',
         '3010': 'أسمنت العربية', '3020': 'أسمنت اليمامة', '3030': 'أسمنت السعودية', '3040': 'أسمنت القصيم',
-        '3050': 'أسمنت الجنوب', '3060': 'أسمنت ينبع', '3080': 'أسمنت الشرقية', '3003': 'أسمنت المدينة'
+        '3050': 'أسمنت الجنوب', '3060': 'أسمنت ينبع', '3080': 'أسمنت الشرقية'
     }
 elif "الجزء 3" in market_part:
     TICKERS = {
         '4001': 'أسواق العثيم', '4002': 'المواساة', '4004': 'دله الصحية', '4007': 'الحمادي', '4013': 'سليمان الحبيب',
-        '2280': 'المراعي', '2270': 'sadafco', '6010': 'نادك', '2050': 'صافولا', '2100': 'وفرة', '2281': 'تنمية',
-        '6020': 'جاكو', '6040': 'تبوك الزراعية', '6050': 'الأسماك', '6060': 'الشرقية الزراعية'
+        '2280': 'المراعي', '2270': 'سدافكو', '6010': 'نادك', '2050': 'صافولا', '2100': 'وفرة', '2281': 'تنمية'
     }
 else:
     TICKERS = {
-        '4300': 'دار الأركان', '4020': 'العقارية', '4150': 'الرياض للتعمير', '4250': 'جبل عمر', '4321': 'سينومي سنترز', '4220': 'إعمار',
-        '4040': 'سابتكو', '4140': 'ساسكو', '4210': 'الأبحاث والإعلام', '1832': 'سيرا', '8010': 'التعاونية للتأمين', 
-        '8020': 'ميدغلف', '8030': 'ملاذ', '8120': 'الدرع العربي', '8150': 'أسيج', '8210': 'بوبا العربية'
+        '4300': 'دار الأركان', '4020': 'العقارية', '4150': 'الرياض للتعمير', '4250': 'جبل عمر', '4321': 'سينومي سنترز',
+        '4040': 'سابتكو', '4140': 'ساسكو', '4210': 'الأبحاث والإعلام', '1832': 'سيرا', '8010': 'التعاونية للتأمين'
     }
 
 FINANCIAL_DATA = {
@@ -136,22 +171,21 @@ def combine_and_decide(ticker, tech_row):
     if tech_row['MACD_Line'] > tech_row['Signal_Line']: points += 1; justifications.append("ماكد إيجابي")
     else: points -= 1; justifications.append("ماكد سلبي")
     fin = FINANCIAL_DATA.get(ticker, {'PE': 20.0, 'Sector': 'أخرى'})
-    if fin['PE'] < 17: points += 1; justifications.append("مكرر جاذب")
-    if points >= 1: return "🟢 شراء (BUY)", points, " | ".join(justifications)
-    elif points == 0: return "🟠 انتظار (HOLD)", points, " | ".join(justifications)
-    else: return "🔴 بيع (SELL)", points, " | ".join(justifications)
+    if fin['PE'] < 17: points += 1
+    if points >= 1: return "🟢 شراء (BUY)", points
+    elif points == 0: return "🟠 انتظار (HOLD)", points
+    else: return "🔴 بيع (SELL)", points
 # ================= معالجة العرض والجداول والرسوم البيانية =================
 if st.button(f"🔄 تحديث {market_part} الآن", type="primary"):
-    with st.spinner(f"جاري كشط بيانات {market_part} بسرعة فائقة..."):
+    with st.spinner(f"جاري سحب صفقات {market_part}..."):
         try:
             tv = TvDatafeed()
-        except Exception as e:
-            st.error(f"خطأ اتصال: {e}")
+        except:
+            st.error("خطأ اتصال بسيرفرات الأسعار.")
             st.stop()
 
         final_report = []
         all_dfs = {}
-        
         for symbol, name in TICKERS.items():
             try:
                 df = tv.get_hist(symbol=symbol, exchange='TADAWUL', interval=Interval.in_daily, n_bars=100)
@@ -159,7 +193,7 @@ if st.button(f"🔄 تحديث {market_part} الآن", type="primary"):
                     df = calculate_indicators(df)
                     all_dfs[symbol] = df
                     last_candle = df.iloc[-1]
-                    rec, score, reason = combine_and_decide(symbol, last_candle)
+                    rec, score = combine_and_decide(symbol, last_candle)
                     current_price = last_candle['close']
                     fin = FINANCIAL_DATA.get(symbol, {'PE': 'غير متوفر', 'Sector': 'عام'})
                     
@@ -168,7 +202,7 @@ if st.button(f"🔄 تحديث {market_part} الآن", type="primary"):
                         'السعر الحالي': round(current_price, 2), 
                         'الهدف (TP)': round(current_price * 1.05, 2), 'الوقف (SL)': round(current_price * 0.975, 2),
                         'مؤشر RSI': round(last_candle['RSI'], 1), 'مكرر P/E': fin['PE'], 
-                        'قوة الإشارة': score, 'القرار والفلترة': rec, 'المبررات': reason
+                        'قوة الإشارة': score, 'القرار والفلترة': rec
                     })
                 time.sleep(0.05)
             except: continue
@@ -186,7 +220,7 @@ if 'df_display' in st.session_state:
         elif "🟠" in str(val): return 'background-color: #fff3cd; color: #856404; font-weight: bold;'
         return ''
 
-    # 1. الاستعلام الفني السريع
+    # 1. الاستعلام الفني السريع برقم السهم
     st.markdown("<h3 style='text-align:right; color:#38bdf8;'>🔍 الاستعلام الفني السريع برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من هذا الجزء لرسم شارت الحركة فوراً (مثال: 1120):", "").strip()
     if search_code and search_code in all_dfs:
@@ -208,7 +242,7 @@ if 'df_display' in st.session_state:
     else:
         st.info("لا توجد فرص شراء مستوفية الشروط في هذا الجزء حالياً.")
 
-    # 3. جدول مراقبة القطاعات المحددة الشامل
+    # 3. جدول ومراقبة أسهم الجزء الحالي
     st.markdown(f"<h3 style='text-align:right; color:#94a3b8;'>📋 جدول ومراقبة أسهم {market_part}</h3>", unsafe_allow_html=True)
     st.dataframe(df_display.style.map(color_rows, subset=['القرار والفلترة']), use_container_width=True, height=350)
 else:
