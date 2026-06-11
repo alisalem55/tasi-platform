@@ -47,26 +47,31 @@ def get_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة صقر تاسي للتحليل الفني والمالي للأعضاء", layout="wide")
 
+# حقن كود التصميم المطور لإلغاء وتفريغ القائمة الجانبية بالكامل وجعل الموقع يعمل بملء الشاشة
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
-        html, body, [data-testid="stSidebar"], .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl !text-align: right; }
+        html, body, .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
-        [data-testid="stSidebar"] { min-width: 320px !important; max-width: 350px !important; z-index: 99999 !important; }
-        [data-testid="stSidebarUserContent"] { direction: rtl !important; text-align: right !important; }
+        [data-testid="stSidebar"] { display: none !important; } /* إخفاء القائمة الجانبية تماماً */
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
+        .login-btn { background-color: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; text-align: center; margin-bottom: 15px;}
     </style>
 """, unsafe_allow_html=True)
 
+# تصميم الهيدر الملكي الفاخر للمنصة
 st.markdown("""
-    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; text-align:right;">
+    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:right;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500;">
-            المحطة التفاعلية الفاخرة للفرز المدمج وتحديد المستهدفات اللحظية | نسخة التوليد الدائم 🔒
+            المحطة التفاعلية الفاخرة للفرز المدمج وتحديد المستهدفات اللحظية | نسخة الدخول بالأيقونة الذكية 🔑
         </p>
     </div>
 """, unsafe_allow_html=True)
+current_device_id = get_device_fingerprint()
+saved_key = controller.get("tasi_saved_license_key")
 
+# لوحة المؤشرات الرقمية الذكية (Dashboard Cards)
 card_col1, card_col2, card_col3 = st.columns(3)
 with card_col1:
     st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #38bdf8; text-align:center;">
@@ -79,111 +84,112 @@ with card_col2:
         <h3 style="color:#22c55e; margin:5px 0 0 0; font-size:22px;">تحليل تقاطعي نشط</h3>
     </div>""", unsafe_allow_html=True)
 with card_col3:
-    st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #a855f7; text-align:center;">
-        <p style="color:#94a3b8; margin:0; font-size:14px; font-weight:bold;"> إدارة الأموال</p>
-        <h3 style="color:#a855f7; margin:5px 0 0 0; font-size:22px;">حاسبة مخاطر ذكية</h3>
-    </div>""", unsafe_allow_html=True)
+    # تخصيص البطاقة الثالثة لتصبح زر تسجيل دخول تفاعلي يحمل أيقونة المفتاح والقفل 🔓
+    if not saved_key:
+        st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #ef4444; text-align:center;">
+            <p style="color:#fca5a5; margin:0; font-size:14px; font-weight:bold;">🔑 حالة الحساب</p>
+            <p style="color:#fee2e2; margin:5px 0 0 0; font-size:16px; font-weight:bold;">يرجى تفعيل الاشتراك أدناه</p>
+        </div>""", unsafe_allow_html=True)
+    else:
+        st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #22c55e; text-align:center;">
+            <p style="color:#94a3b8; margin:0; font-size:14px; font-weight:bold;">🔒 تفعيل الهوية</p>
+            <p style="color:#22c55e; margin:5px 0 0 0; font-size:16px; font-weight:bold;">الجهاز مصرح له ومتصل</p>
+        </div>""", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
-current_device_id = get_device_fingerprint()
-saved_key = controller.get("tasi_saved_license_key")
 
-st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8; font-size:20px; font-weight:700;'>🔐 مركز التوثيق والأمان</h2>", unsafe_allow_html=True)
-
-if not saved_key:
-    user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري (لمرة واحدة فقط):", "", type="password").strip()
-    if st.sidebar.button("💾 تفعيل وحفظ في هذا الجهاز"):
-        if user_key == MASTER_ADMIN_KEY or user_key in st.session_state['SYSTEM_LICENSES']:
-            controller.set("tasi_saved_license_key", user_key)
-            st.sidebar.success("تم تفعيل الجهاز بنجاح!")
-            time.sleep(0.5)
-            st.rerun()
-        else:
-            st.sidebar.error("المفتاح غير صحيح!")
-    user_key_active = user_key
-else:
-    user_key_active = saved_key
-    st.sidebar.markdown(f"<div style='background-color:#0f172a; padding:12px; border-radius:8px; border-right:4px solid #22c55e; color:#e2e8f0; font-size:14px; font-weight:bold; text-align:center;'>🔒 تم التفعيل التلقائي للجهاز</div>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.sidebar.button("🚪 تسجيل الخروج / مسح الجهاز"):
-        controller.remove("tasi_saved_license_key")
-        st.rerun()
-
+user_key_active = saved_key
 is_admin = False
 is_access_granted = False
 block_reason = ""
 
+# --- الميزة الجديدة: شاشة الدفع المنبثقة التفاعلية وسط الشاشة ---
+if not saved_key:
+    # استخدام نظام Expander مخصص ليعمل كنافذة منبثقة أنيقة بمنتصف شاشة الجوال
+    with st.expander("🔑 اضغط هنا لفتح نافذة تسجيل الدخول وتفعيل المنصة", expanded=True):
+        st.markdown("<div style='text-align:right; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يتم إدخاله لمرة واحدة فقط ويقفل على جهازك):</div>", unsafe_allow_html=True)
+        user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
+        if st.button("💾 تفعيل وحفظ الهوية في المتصفح"):
+            if user_key == MASTER_ADMIN_KEY or user_key in st.session_state['SYSTEM_LICENSES']:
+                controller.set("tasi_saved_license_key", user_key)
+                st.success("🎉 تم تفعيل وحفظ الكود بجهازك بنجاح! جاري إطلاق المنصة...")
+                time.sleep(0.8)
+                st.rerun()
+            else:
+                st.error("عذراً، رمز التفعيل غير صحيح أو غير مسجل بالنظام!")
+    user_key_active = user_key
+else:
+    # إدراج زر تسجيل الخروج الأنيق في أعلى لوحة تحكم الأعضاء
+    out_col1, out_col2 = st.columns([6, 1])
+    with out_col2:
+        if st.button("🚪 خروج ومسح الجهاز"):
+            controller.remove("tasi_saved_license_key")
+            st.rerun()
+    with out_col1:
+        st.markdown(f"<p style='text-align:left; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 الحساب متصل تلقائياً بنجاح.</p>", unsafe_allow_html=True)
+
+# التحقق الفوري من الصلاحيات والقيود
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
-    st.sidebar.success("🔓 المشرف: نشط")
 elif user_key_active in st.session_state['SYSTEM_LICENSES']:
     license_info = st.session_state['SYSTEM_LICENSES'][user_key_active]
     expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
     if datetime.now().date() > expiry_date:
-        block_reason = f"عذراً، هذا الاشتراك منتهي منذ تاريخ: {license_info['expiry']}"
+        block_reason = f"عذراً، اشتراكك منتهي الصلاحية منذ تاريخ: {license_info['expiry']}"
     else:
         is_access_granted = True
-        st.sidebar.success(f"👤 العضو: {license_info['owner']}")
 elif user_key_active:
-    block_reason = "مفتاح التفعيل غير مسجل بنظام الصقر!"
+    block_reason = "مفتاح التفعيل السري غير مسجل بنظام الصقر!"
 
 if not is_access_granted:
-    display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية."
-    st.markdown("""
-        <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:30px; text-align:right; border-right:8px solid #ef4444;">
-            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة مدفوعة للأعضاء)</h2>
-            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">{display_msg}</p>
+    st.markdown(f"""
+        <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:10px; text-align:right; border-right:8px solid #ef4444;">
+            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة محمية للأعضاء)</h2>
+            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">
+                يرجى فتح بطاقة تسجيل الدخول بالأعلى وإدخال كود التفعيل السري الخاص بك لفتح الشاشات والرسوم التفاعلية.
+            </p>
         </div>
     """, unsafe_allow_html=True)
     st.stop()
 
-# لوحة الإدارة المطورة بنظام أزرار النسخ الفردية الذكية
+# لوحة الإدارة الذكية المحدثة بأزرار النسخ الفردية
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:right; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة الإدارة السرية للتحكم بالاشتراكات</h2>", unsafe_allow_html=True)
-    
+    st.markdown("<h2 style='text-align:right; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة الإدارة السرية للتحكم بالاشتراكات وإصدار المفاتيح</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
-    with col1:
-        sub_name = st.text_input("اسم المشترك الجديد:", "حامد الطلحي")
-    with col2:
-        sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
+    with col1: sub_name = st.text_input("اسم المشترك الجديد:", "حامد الطلحي")
+    with col2: sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("✨ توليد وتثبيت الكود السري", type="secondary"):
+        if st.button("✨ توليد وتثبيت الكود السري"):
             raw_uuid = str(uuid.uuid4()).replace('-', '')
             clean_part = raw_uuid[:8].upper()
             new_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            
             st.session_state['SYSTEM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "role": "user"}
             save_licenses_to_storage(st.session_state['SYSTEM_LICENSES'])
-            st.success(f"🎉 تم توليد الكود وحفظه بنجاح للأبد! انسخ من الجدول بالأسفل.")
+            st.success("🎉 تم توليد الكود وحفظه بنجاح للأبد! انسخ من الجدول بالأسفل.")
             
-    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين وأزرار النسخ الفوري المباشر:</p>", unsafe_allow_html=True)
-    
-    # بناء نظام الفرز التفاعلي لصناعة زر لكل سهم ينسخ بضغطة واحدة
+    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين وأزرار النسخ الفوري المباشر للحافظة:</p>", unsafe_allow_html=True)
     for key, info in list(st.session_state['SYSTEM_LICENSES'].items()):
         inner_col1, inner_col2, inner_col3 = st.columns([3, 2, 1])
-        with inner_col1:
-            st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي في:** {info['expiry']}")
-        with inner_col2:
-            st.code(key) # عرض الكود بشكل بارز
-        with inner_col3:
-            # زر مدمج من بايثون ينسخ محتوى المتغير السري لمحفظة الجوال فوراً
-            st.button("📋 نسخ", key=f"btn_copy_{key}", help="اضغط لنسخ هذا المفتاح الفوري لإرساله")
-            
+        with inner_col1: st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي في:** {info['expiry']}")
+        with inner_col2: st.code(key)
+        with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- حاسبة المخاطر الجانبية الشغالة دائماً ---
-st.sidebar.markdown("<h3 style='text-align:right; color:#c084fc; font-size:17px; font-weight:700;'>🧮 حاسبة توزيع السيولة</h3>", unsafe_allow_html=True)
-capital = st.sidebar.number_input("إجمالي رأس المال (ريال)", min_value=1000, value=50000, step=5000)
-risk_percent = st.sidebar.slider("نسبة المخاطرة في الصفقة (%)", 1.0, 5.0, 2.0, 0.5)
-entry_price = st.sidebar.number_input("سعر الدخول (ريال)", min_value=1.0, value=30.0, step=0.5)
-sl_price = st.sidebar.number_input("سعر الوقف (SL)", min_value=0.5, value=29.25, step=0.5)
-if entry_price > sl_price:
-    allowed_loss = capital * (risk_percent / 100)
-    shares = int(allowed_loss / (entry_price - sl_price))
-    st.sidebar.info(f"الأسهم المستهدفة: **{shares} سهم**\n\nالسيولة المطلوبة: **{shares * entry_price:.2f} ريال**")
+# دمج حاسبة إدارة السيولة في واجهة ملء الشاشة الرئيسية لتوفير رؤية بانورامية للمستثمر
+calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة", expanded=False)
+with calc_exp:
+    c_col1, c_col2, c_col3, c_col4 = st.columns(4)
+    with c_col1: capital = st.number_input("إجمالي رأس المال المتوفر (ريال)", min_value=1000, value=50000, step=5000)
+    with c_col2: risk_percent = st.slider("نسبة المخاطرة القصوى مسموحة الصفقة (%)", 1.0, 5.0, 2.0, 0.5)
+    with c_col3: entry_price = st.number_input("سعر دخول السهم الحالي (ريال)", min_value=1.0, value=30.0, step=0.5)
+    with c_col4: sl_price = st.number_input("سعر الوقف الفني للسهم (SL)", min_value=0.5, value=29.25, step=0.5)
+    if entry_price > sl_price:
+        allowed_loss = capital * (risk_percent / 100)
+        shares = int(allowed_loss / (entry_price - sl_price))
+        st.info(f"📈 **خطة إدارة رأس المال:** عدد الأسهم الآمن للشراء: **{shares} سهم** | السيولة المطلوبة لتخصيصها: **{shares * entry_price:.2f} ريال**")
 # ================= مصفوفة كامل أسهم السوق السعودي (تاسي) موحدة وجاهزة بعد إضافة جرير =================
 TICKERS = {
     '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
