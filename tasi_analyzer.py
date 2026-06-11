@@ -48,14 +48,14 @@ def get_device_fingerprint():
     accept_lang = headers.get("Accept-Language", "Unknown_Lang")
     return f"{user_agent}_{accept_lang}"
 
-# --- إعدادات واجهة منصة الويب التفاعلية ---
-st.set_page_config(page_title="منصة تاسي الذكية ذات التفعيل الثابت والتوليد", layout="wide")
+# --- إعدادات واجهة منصة الصقر المحدثة بالهوية الجديدة ---
+st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
 st.markdown("""
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; margin-bottom:25px; text-align:right; direction:rtl;">
-        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية الشاملة - نسخة التوليد وحفظ السيرفر الدائم</h1>
+        <h1 style="color:#f8fafc; margin:0; font-family:Sans-Serif;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:bold;">
-            توليد فوري للمفاتيح مع حفظ دائم في قاعدة البيانات | تذكر تلقائي للمشتركين في المتصفح | حماية كامل السوق 🔒
+            سحب حي من TradingView | حفظ الهوية تلقائياً في المتصفح لمرة واحدة | حماية صارمة لمنع التشارك 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -79,6 +79,7 @@ if not saved_key:
             st.sidebar.error("المفتاح غير صحيح!")
     user_key_active = user_key
 else:
+    # إذا كان المفتاح مخزناً سابقاً في المتصفح، يقرأه الكود تلقائياً ويعفيه من الكتابة
     user_key_active = saved_key
     st.sidebar.info(f"🔒 تم تسجيل الدخول تلقائياً عبر ذاكرة الجهاز.")
     if st.sidebar.button("🚪 تسجيل الخروج / مسح الجهاز"):
@@ -118,7 +119,7 @@ if not is_access_granted:
     """, unsafe_allow_html=True)
     st.stop()
 
-# === لوحة الإدارة الذكية: تقوم بالكتابة في ملف صلب لكي لا تضيع الأكواد أبداً ===
+# لوحة الإدارة الذكية: تقوم بالكتابة في ملف صلب لكي لا تضيع الأكواد المولدّة أبداً عند التحديث
 if is_admin:
     st.markdown("<h2 style='text-align:right; color:#a855f7;'>⚙️ لوحة الإدارة السريّة (توليد مفاتيح المشتركين الثابتة)</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
@@ -129,11 +130,11 @@ if is_admin:
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("✨ توليد الكود السري فوراً", type="secondary"):
-            random_id = str(uuid.uuid4()).split('-')[0].upper()
+            random_id = str(uuid.uuid4()).split('-').upper()
             new_key = f"TASI-{random_id}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
             
-            # التعديل الجوهري: الكتابة في الذاكرة وفي الملف الصلب معاً للحفظ الأبدي
+            # حفظ المفتاح في الذاكرة وفي الملف الصلب معاً لثباته واستقراره للعميل
             st.session_state['SYSTEM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "role": "user"}
             save_licenses_to_storage(st.session_state['SYSTEM_LICENSES'])
             st.success(f"🎉 تم توليد الكود وحفظه بنجاح للأبد! اعطه للعميل: {new_key}")
@@ -163,7 +164,7 @@ TICKERS = {
     '3010': 'أسمنت العربية', '3020': 'أسمنت اليمامة', '3030': 'أسمنت السعودية', '3040': 'أسمنت القصيم',
     '3050': 'أسمنت الجنوب', '3060': 'أسمنت ينبع', '3080': 'أسمنت الشرقية', '3003': 'أسمنت المدينة',
     '7010': 'STC (الاتصالات)', '7020': 'موبايلي', '7030': 'زين السعودية', '7200': 'تداول السعودية', '7204': 'علم', '4260': 'المعمر',
-    '4001': 'أسواق العثيم', '4002': 'المواساة', '4004': 'دله الصحية', '4007': 'الحمادي', '4013': 'سليمان الحبيب',
+    '4001': 'أسواق العثيم', '4002': 'المواواة', '4004': 'دله الصحية', '4007': 'الحمادي', '4013': 'سليمان الحبيب',
     '2280': 'المراعي', '2270': 'سدافكو', '6010': 'نادك', '2050': 'صافولا', '2100': 'وفرة',
     '4300': 'دار الأركان', '4020': 'العقارية', '4150': 'الرياض للتعمير', '4250': 'جبل عمر', '4321': 'سينومي سنترز',
     '4040': 'سابتكو', '4140': 'ساسكو', '4190': 'جرير', '8010': 'التعاونية للتأمين', '8020': 'ميدغلف', '8210': 'بوبا العربية'
