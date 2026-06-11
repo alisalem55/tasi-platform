@@ -141,7 +141,7 @@ elif user_key_active:
 if not is_access_granted:
     st.markdown(f"""
         <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:10px; text-align:right; border-right:8px solid #ef4444;">
-            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة محمية للأعضاء)</h2>
+            <h2 style="color:#fee2e2; margin:0;">🔒 محطة التداول مغلقة (منطقة محمية للأعضاء)</h2>
             <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">
                 يرجى فتح بطاقة تسجيل الدخول بالأعلى وإدخال كود التفعيل السري الخاص بك لفتح الشاشات والرسوم التفاعلية.
             </p>
@@ -169,9 +169,14 @@ if is_admin:
     st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين وأزرار النسخ الفوري المباشر للحافظة:</p>", unsafe_allow_html=True)
     for key, info in list(st.session_state['SYSTEM_LICENSES'].items()):
         inner_col1, inner_col2, inner_col3 = st.columns()
-        with inner_col1: st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي in:** {info['expiry']}")
+        with inner_col1: st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي في:** {info['expiry']}")
         with inner_col2: st.code(key)
         with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
+        
+    st.markdown("---")
+    st.markdown("<p style='text-align:right; font-weight:bold; color:#f43f5e;'>📥 مركز النسخ الاحتياطي والأمان (احفظ هذا النص عندك لحماية المشتركين):</p>", unsafe_allow_html=True)
+    backup_string = json.dumps(st.session_state['SYSTEM_LICENSES'], ensure_ascii=False)
+    st.text_area("انسخ محتوى هذا الصندوق بالكامل وضعه في نوتة جوالك لحفظ المشتركين:", value=backup_string, height=90)
     st.markdown("</div>", unsafe_allow_html=True)
 
 calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة", expanded=False)
@@ -205,7 +210,7 @@ TICKERS = {
 FINANCIAL_DATA = {
     '1120': {'PE': 19.2, 'Sector': 'البنوك'}, '1180': {'PE': 14.5, 'Sector': 'البنوك'},
     '1150': {'PE': 16.4, 'Sector': 'البنوك'}, '2222': {'PE': 16.0, 'Sector': 'الطاقة'},
-    '2010': {'PE': 24.1, 'Sector': 'البتروكيماويات'}, '7010': {'PE': 15.1, 'Sector': 'الاتصالات'},
+    '2010': {'PE': 24.1, 'Sector': 'البتروكيماويات'}, '7010': {'PE': 15.1, 'Communications': 'الاتصالات'},
     '4190': {'PE': 15.8, 'Sector': 'الخدمات الاستهلاكية'}
 }
 
@@ -254,7 +259,7 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
                     current_price = last_candle['close']
                     fin = FINANCIAL_DATA.get(symbol, {'PE': 'غير متوفر', 'Sector': 'عام'})
                     
-                    # هندسة التنسيق الرقمي: رقمين فقط بعد الفاصلة لمنع تداخل الأصفار
+                    # هندسة التنسيق الرقمي: رقمين فقط بعد الفاصلة لمنع تداخل أرقام وأصفار المتصفح
                     final_report.append({
                         'الرمز': f"{symbol}", 
                         'اسم السهم': name, 
@@ -277,7 +282,7 @@ if 'df_display' in st.session_state:
     df_display = st.session_state['df_display']
     all_dfs = st.session_state['all_dfs']
     
-    # دالة التلوين المتقدمة والمحاذاة الشاملة للسنتر بوسط الخلية (Center Alignment)
+    # دالة التلوين المتقدمة والمحاذاة الشاملة لمركز الخلايا بالسنتر (Center Alignment)
     def style_table_rows(val):
         styles = 'text-align: center !important; font-weight: bold;'
         if "🟢" in str(val): return styles + 'background-color: #d4edda; color: #155724;'
@@ -288,7 +293,7 @@ if 'df_display' in st.session_state:
     def align_center(val):
         return 'text-align: center !important;'
 
-    # 1. محرك الاستعلام السريع برقم السهم والشارت
+    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي
     st.markdown("<h3 style='text-align:right; color:#38bdf8; font-size:18px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "").strip()
     if search_code and search_code in all_dfs:
@@ -303,7 +308,7 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.9, xanchor='right'))
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. جدول فرص الشراء الذهبية (بالمحاذاة المحدثة بوسط الخلايا بالكامل)
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق
     st.markdown("<h3 style='text-align:right; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     if not buy_df.empty:
@@ -312,9 +317,9 @@ if 'df_display' in st.session_state:
     else:
         st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل (بالمحاذاة المحدثة بوسط الخلايا بالكامل)
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف
     st.markdown("<h3 style='text-align:right; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
     styled_all = df_display.style.map(style_table_rows, subset=['القرار والفلترة']).map(align_center, subset=['الرمز', 'اسم السهم', 'القطاع', 'السعر الحالي', 'الهدف (TP)', 'الوقف (SL)', 'مؤشر RSI', 'مكرر P/E', 'قوة الإشارة'])
     st.dataframe(styled_all, use_container_width=True, height=450)
 else:
-    st.info("المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.")
+    st.sidebar.markdown("<br>", unsafe_allow_html=True)
