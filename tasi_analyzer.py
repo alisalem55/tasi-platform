@@ -45,51 +45,50 @@ def get_device_fingerprint():
     return f"{user_agent}_{accept_lang}"
 
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
-st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
+st.set_page_config(page_title="منصة صقر تاسي للتحليل الفني والمالي للأعضاء", layout="wide")
 
-# كود حقن ذكي لتجميل الخطوط وإخفاء أزرار الـ Fork وشعار جيت هاب نهائياً
+# حقن كود التصميم المطور لإلغاء تداخل النصوص والخطوط العمودية في المنتصف نهائياً على الجوال
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
-        html, body, [data-testid="stSidebar"], .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
+        html, body, [data-testid="stSidebar"], .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl !text-align: right; }
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
-        .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; transition: 0.3s; }
-        .stButton>button:hover { background-color: #0369a1 !important; box-shadow: 0 4px 12px rgba(3,105,161,0.4); }
+        [data-testid="stSidebar"] { min-width: 320px !important; max-width: 350px !important; z-index: 99999 !important; }
+        [data-testid="stSidebarUserContent"] { direction: rtl !important; text-align: right !important; }
+        .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# تصميم الهيدر الملكي الفاخر
 st.markdown("""
-    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:right;">
-        <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:32px;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
-        <p style="color:#38bdf8; margin:8px 0 0 0; font-size:16px; font-weight:500;">
-            المحطة التفاعلية الفاخرة للفرز المدمج وتحديد المستهدفات اللحظية | حماية وتشفير متقدم 🔒
+    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; text-align:right;">
+        <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
+        <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500;">
+            المحطة التفاعلية الفاخرة للفرز المدمج وتحديد المستهدفات اللحظية | نسخة التوليد الدائم 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# لوحة المؤشرات الرقمية الذكية (Dashboard Cards) لرفع احترافية التصميم العلوي
 card_col1, card_col2, card_col3 = st.columns(3)
 with card_col1:
     st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #38bdf8; text-align:center;">
         <p style="color:#94a3b8; margin:0; font-size:14px; font-weight:bold;"> الأسهم المغطاة</p>
-        <h3 style="color:#f8fafc; margin:5px 0 0 0; font-size:24px;">66 شركة قيادية</h3>
+        <h3 style="color:#f8fafc; margin:5px 0 0 0; font-size:22px;">66 شركة قيادية</h3>
     </div>""", unsafe_allow_html=True)
 with card_col2:
     st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #22c55e; text-align:center;">
         <p style="color:#94a3b8; margin:0; font-size:14px; font-weight:bold;"> وضع السوق الكلي</p>
-        <h3 style="color:#22c55e; margin:5px 0 0 0; font-size:24px;">تحليل تقاطعي نشط</h3>
+        <h3 style="color:#22c55e; margin:5px 0 0 0; font-size:22px;">تحليل تقاطعي نشط</h3>
     </div>""", unsafe_allow_html=True)
 with card_col3:
     st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #a855f7; text-align:center;">
         <p style="color:#94a3b8; margin:0; font-size:14px; font-weight:bold;"> إدارة الأموال</p>
-        <h3 style="color:#a855f7; margin:5px 0 0 0; font-size:24px;">حاسبة مخاطر ذكية</h3>
+        <h3 style="color:#a855f7; margin:5px 0 0 0; font-size:22px;">حاسبة مخاطر ذكية</h3>
     </div>""", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 current_device_id = get_device_fingerprint()
 saved_key = controller.get("tasi_saved_license_key")
 
-st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8; font-size:22px; font-weight:700;'>🔐 مركز التوثيق والأمان</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='text-align:right; color:#38bdf8; font-size:20px; font-weight:700;'>🔐 مركز التوثيق والأمان</h2>", unsafe_allow_html=True)
 
 if not saved_key:
     user_key = st.sidebar.text_input("أدخل مفتاح التفعيل السري (لمرة واحدة فقط):", "", type="password").strip()
@@ -97,7 +96,7 @@ if not saved_key:
         if user_key == MASTER_ADMIN_KEY or user_key in st.session_state['SYSTEM_LICENSES']:
             controller.set("tasi_saved_license_key", user_key)
             st.sidebar.success("تم تفعيل الجهاز بنجاح!")
-            time.sleep(0.8)
+            time.sleep(0.5)
             st.rerun()
         else:
             st.sidebar.error("المفتاح غير صحيح!")
@@ -130,44 +129,46 @@ elif user_key_active:
     block_reason = "مفتاح التفعيل غير مسجل بنظام الصقر!"
 
 if not is_access_granted:
-    display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية وبدء الكشط الرقمي للأسهم."
+    display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية."
     st.markdown(f"""
-        <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:30px; text-align:right; border-right:8px solid #ef4444; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);">
-            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:24px;">🔒 محطة التداول مغلقة (منطقة مدفوعة للأعضاء)</h2>
-            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:16px; font-weight:bold;">
+        <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:30px; text-align:right; border-right:8px solid #ef4444;">
+            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة مدفوعة للأعضاء)</h2>
+            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">
                 {display_msg}
             </p>
         </div>
     """, unsafe_allow_html=True)
     st.stop()
 
-# تجميل واجهة لوحة الإدارة للمشرف لتصبح على شكل جداول فاخرة بدلاً من نصوص الجايسون المعقدة
+# لوحة الإدارة المصححة والمحمية بالكامل من أخطاء الـ AttributeError
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:right; color:#c084fc; margin:0 0 15px 0; font-size:22px; font-weight:bold;'>⚙️ لوحة الإدارة السرية للتحكم بالاشتراكات</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:right; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة الإدارة السرية للتحكم بالاشتراكات</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
-        sub_name = st.text_input("اسم المشترك الجديد:", "أبو سلطان")
+        sub_name = st.text_input("اسم المشترك الجديد:", "حامد الطلحي")
     with col2:
         sub_days = st.number_input("مدة صلاحية المفتاح بالأيام:", min_value=1, max_value=365, value=30)
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("✨ توليد وتثبيت الكود السري", type="secondary"):
-            random_id = str(uuid.uuid4()).split('-').upper()
-            new_key = f"TASI-{random_id}"
+            # تصحيح البرمجة: استخراج النص بدقة تامة من الـ UUID ليعمل التوليد دون مشاكل
+            raw_uuid = str(uuid.uuid4())
+            clean_part = raw_uuid.split('-')[0].upper()
+            new_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
+            
             st.session_state['SYSTEM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "role": "user"}
             save_licenses_to_storage(st.session_state['SYSTEM_LICENSES'])
-            st.success(f"🎉 تم توليد الكود بنجاح للأبد! اعطه للعميل: {new_key}")
+            st.success(f"🎉 تم توليد الكود وحفظه بنجاح للأبد للمشترك {sub_name}! الكود السري: {new_key}")
             
-    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المفاتيح الفعالة المسجلة بالسيرفر حالياً:</p>", unsafe_allow_html=True)
-    # تحويل الجايسون لجدول إكسيل أنيق يريح العين في المراقبة والتتبع
+    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المفاتيح المحفوظة بشكل دائم في السيرفر:</p>", unsafe_allow_html=True)
     db_df = pd.DataFrame.from_dict(st.session_state['SYSTEM_LICENSES'], orient='index').reset_index().rename(columns={'index':'المفتاح السري', 'owner':'اسم المشترك', 'expiry':'تاريخ الانتهاء', 'role':'الفئة'})
     st.dataframe(db_df, use_container_width=True, height=180)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- حاسبة المخاطر الجانبية في الشريط الجانبي المطور ---
-st.sidebar.markdown("<h3 style='text-align:right; color:#c084fc; font-size:18px; font-weight:700;'>🧮 حاسبة توزيع السيولة</h3>", unsafe_allow_html=True)
+# --- حاسبة المخاطر الجانبية الشغالة دائماً ---
+st.sidebar.markdown("<h3 style='text-align:right; color:#c084fc; font-size:17px; font-weight:700;'>🧮 حاسبة توزيع السيولة</h3>", unsafe_allow_html=True)
 capital = st.sidebar.number_input("إجمالي رأس المال (ريال)", min_value=1000, value=50000, step=5000)
 risk_percent = st.sidebar.slider("نسبة المخاطرة في الصفقة (%)", 1.0, 5.0, 2.0, 0.5)
 entry_price = st.sidebar.number_input("سعر الدخول (ريال)", min_value=1.0, value=30.0, step=0.5)
@@ -224,7 +225,6 @@ def combine_and_decide(ticker, tech_row):
     if points >= 1: return "🟢 شراء (BUY)", points
     elif points == 0: return "🟠 انتظار (HOLD)", points
     else: return "🔴 بيع (SELL)", points
-# زر سحب وإطلاق فرز كامل السوق موحد وثابت في أعلى الصفحة
 if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن", type="primary"):
     with st.spinner("جاري جلب وتحليل كامل أسهم تاسي (أكثر من 66 شركة قيادية)..."):
         try:
@@ -270,7 +270,7 @@ if 'df_display' in st.session_state:
         return ''
 
     # 1. محرك الاستعلام السريع برقم السهم والشارت
-    st.markdown("<h3 style='text-align:right; color:#38bdf8; font-size:20px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:right; color:#38bdf8; font-size:18px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "").strip()
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
@@ -278,13 +278,13 @@ if 'df_display' in st.session_state:
             st.dataframe(search_res.style.map(color_rows, subset=['القرار والفلترة']), use_container_width=True)
             s_df = all_dfs[search_code]
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#38bdf8', width=2.5)))
+            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#06b6d4', width=2.5)))
             fig.add_trace(go.Scatter(x=s_df.index, y=s_df['SMA_20'], name='SMA20', line=dict(color='#f59e0b', width=1.5, dash='dash')))
-            fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=280, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.9, xanchor='right'))
+            fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.9, xanchor='right'))
             st.plotly_chart(fig, use_container_width=True)
 
     # 2. جدول فرص الشراء الذهبية المرتبة للأولويات لكامل السوق
-    st.markdown("<h3 style='text-align:right; color:#22c55e; font-size:20px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:right; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     if not buy_df.empty:
         st.dataframe(buy_df.style.map(color_rows, subset=['القرار والفلترة']), use_container_width=True)
@@ -292,7 +292,7 @@ if 'df_display' in st.session_state:
         st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
 
     # 3. جدول مراقبة السوق السعودي الشامل الكامل
-    st.markdown("<h3 style='text-align:right; color:#94a3b8; font-size:20px; font-weight:bold;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:right; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
     st.dataframe(df_display.style.map(color_rows, subset=['القرار والفلترة']), use_container_width=True, height=450)
 else:
     st.info("المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.")
