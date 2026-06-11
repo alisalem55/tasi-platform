@@ -56,7 +56,7 @@ st.markdown("""
     <style>
         @import url('https://googleapis.com');
         html, body, .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
-        #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
+        #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !hidden !important;}
         [data-testid="stSidebar"] { display: none !important; }
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
@@ -114,10 +114,10 @@ if not saved_key:
                 time.sleep(0.8)
                 st.rerun()
             else:
-                st.error("عذراً، رمز التفعيل غير صحيح أو غير مسجل بالنظام!")
+                st.error("عذراً, رمز التفعيل غير صحيح أو غير مسجل بالنظام!")
     user_key_active = user_key
 else:
-    out_col1, out_col2 = st.columns()
+    out_col1, out_col2 = st.columns(2) # تصحيح تم تعيين عدد الأعمدة بـ 2 بدقة لمنع الخطأ
     with out_col2:
         if st.button("🚪 خروج ومسح الجهاز"):
             controller.remove("tasi_saved_license_key")
@@ -132,7 +132,7 @@ elif user_key_active in st.session_state['SYSTEM_LICENSES']:
     license_info = st.session_state['SYSTEM_LICENSES'][user_key_active]
     expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
     if datetime.now().date() > expiry_date:
-        block_reason = f"عذراً، اشتراكك منتهي الصلاحية منذ تاريخ: {license_info['expiry']}"
+        block_reason = f"عذراً, اشتراكك منتهي الصلاحية منذ تاريخ: {license_info['expiry']}"
     else:
         is_access_granted = True
 elif user_key_active:
@@ -141,7 +141,7 @@ elif user_key_active:
 if not is_access_granted:
     st.markdown(f"""
         <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:10px; text-align:right; border-right:8px solid #ef4444;">
-            <h2 style="color:#fee2e2; margin:0;">🔒 محطة التداول مغلقة (منطقة محمية للأعضاء)</h2>
+            <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة محمية للأعضاء)</h2>
             <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">
                 يرجى فتح بطاقة تسجيل الدخول بالأعلى وإدخال كود التفعيل السري الخاص بك لفتح الشاشات والرسوم التفاعلية.
             </p>
@@ -168,7 +168,7 @@ if is_admin:
             
     st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين وأزرار النسخ الفوري المباشر للحافظة:</p>", unsafe_allow_html=True)
     for key, info in list(st.session_state['SYSTEM_LICENSES'].items()):
-        inner_col1, inner_col2, inner_col3 = st.columns()
+        inner_col1, inner_col2, inner_col3 = st.columns(3) # تصحيح تم تعيين عدد الأعمدة بـ 3 بدقة لمنع الخطأ
         with inner_col1: st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي في:** {info['expiry']}")
         with inner_col2: st.code(key)
         with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
@@ -210,7 +210,7 @@ TICKERS = {
 FINANCIAL_DATA = {
     '1120': {'PE': 19.2, 'Sector': 'البنوك'}, '1180': {'PE': 14.5, 'Sector': 'البنوك'},
     '1150': {'PE': 16.4, 'Sector': 'البنوك'}, '2222': {'PE': 16.0, 'Sector': 'الطاقة'},
-    '2010': {'PE': 24.1, 'Sector': 'البتروكيماويات'}, '7010': {'PE': 15.1, 'Communications': 'الاتصالات'},
+    '2010': {'PE': 24.1, 'Sector': 'البتروكيماويات'}, '7010': {'PE': 15.1, 'Sector': 'الاتصالات'},
     '4190': {'PE': 15.8, 'Sector': 'الخدمات الاستهلاكية'}
 }
 
@@ -259,7 +259,6 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
                     current_price = last_candle['close']
                     fin = FINANCIAL_DATA.get(symbol, {'PE': 'غير متوفر', 'Sector': 'عام'})
                     
-                    # هندسة التنسيق الرقمي: رقمين فقط بعد الفاصلة لمنع تداخل أرقام وأصفار المتصفح
                     final_report.append({
                         'الرمز': f"{symbol}", 
                         'اسم السهم': name, 
