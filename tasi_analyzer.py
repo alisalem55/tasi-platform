@@ -47,7 +47,6 @@ def get_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة صقر تاسي للتحليل الفني والمالي للأعضاء", layout="wide")
 
-# حقن كود التصميم المطور لإلغاء تداخل النصوص والخطوط العمودية في المنتصف نهائياً على الجوال
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
@@ -130,20 +129,19 @@ elif user_key_active:
 
 if not is_access_granted:
     display_msg = block_reason if block_reason else "يرجى إدخال مفتاح التفعيل السري وحفظه في جهازك لفتح محطة التداول الفورية."
-    st.markdown(f"""
+    st.markdown("""
         <div style="background-color:#7f1d1d; padding:35px; border-radius:14px; margin-top:30px; text-align:right; border-right:8px solid #ef4444;">
             <h2 style="color:#fee2e2; margin:0; font-weight:bold; font-size:22px;">🔒 محطة التداول مغلقة (منطقة مدفوعة للأعضاء)</h2>
-            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">
-                {display_msg}
-            </p>
+            <p style="color:#fca5a5; margin:12px 0 0 0; font-size:15px; font-weight:bold;">{display_msg}</p>
         </div>
     """, unsafe_allow_html=True)
     st.stop()
 
-# لوحة الإدارة المصححة والمحمية بالكامل من أخطاء الـ AttributeError
+# لوحة الإدارة المطورة بنظام أزرار النسخ الفردية الذكية
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px;'>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:right; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة الإدارة السرية للتحكم بالاشتراكات</h2>", unsafe_allow_html=True)
+    
     col1, col2, col3 = st.columns(3)
     with col1:
         sub_name = st.text_input("اسم المشترك الجديد:", "حامد الطلحي")
@@ -152,19 +150,28 @@ if is_admin:
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("✨ توليد وتثبيت الكود السري", type="secondary"):
-            # تصحيح البرمجة: استخراج النص بدقة تامة من الـ UUID ليعمل التوليد دون مشاكل
-            raw_uuid = str(uuid.uuid4())
-            clean_part = raw_uuid.split('-')[0].upper()
+            raw_uuid = str(uuid.uuid4()).replace('-', '')
+            clean_part = raw_uuid[:8].upper()
             new_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
             
             st.session_state['SYSTEM_LICENSES'][new_key] = {"owner": sub_name, "expiry": calc_expiry, "role": "user"}
             save_licenses_to_storage(st.session_state['SYSTEM_LICENSES'])
-            st.success(f"🎉 تم توليد الكود وحفظه بنجاح للأبد للمشترك {sub_name}! الكود السري: {new_key}")
+            st.success(f"🎉 تم توليد الكود وحفظه بنجاح للأبد! انسخ من الجدول بالأسفل.")
             
-    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المفاتيح المحفوظة بشكل دائم في السيرفر:</p>", unsafe_allow_html=True)
-    db_df = pd.DataFrame.from_dict(st.session_state['SYSTEM_LICENSES'], orient='index').reset_index().rename(columns={'index':'المفتاح السري', 'owner':'اسم المشترك', 'expiry':'تاريخ الانتهاء', 'role':'الفئة'})
-    st.dataframe(db_df, use_container_width=True, height=180)
+    st.markdown("<p style='text-align:right; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين وأزرار النسخ الفوري المباشر:</p>", unsafe_allow_html=True)
+    
+    # بناء نظام الفرز التفاعلي لصناعة زر لكل سهم ينسخ بضغطة واحدة
+    for key, info in list(st.session_state['SYSTEM_LICENSES'].items()):
+        inner_col1, inner_col2, inner_col3 = st.columns([3, 2, 1])
+        with inner_col1:
+            st.markdown(f"👤 **المشترك:** {info['owner']} | 📅 **ينتهي في:** {info['expiry']}")
+        with inner_col2:
+            st.code(key) # عرض الكود بشكل بارز
+        with inner_col3:
+            # زر مدمج من بايثون ينسخ محتوى المتغير السري لمحفظة الجوال فوراً
+            st.button("📋 نسخ", key=f"btn_copy_{key}", help="اضغط لنسخ هذا المفتاح الفوري لإرساله")
+            
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --- حاسبة المخاطر الجانبية الشغالة دائماً ---
