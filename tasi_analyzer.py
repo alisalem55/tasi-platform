@@ -273,33 +273,32 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
 if 'df_display' in st.session_state:
     df_display = st.session_state['df_display']
     all_dfs = st.session_state['all_dfs']
-    
-    # دالة التلوين المتقدمة ومحاذاة السنتر المشددة لوسط الخلايا (Center Alignment)
-    def style_table_rows(val):
-        styles = 'text-align: center !important; justify-content: center !important; font-weight: bold;'
-        if "🟢" in str(val): return styles + 'background-color: #d4edda; color: #155724;'
-        elif "🔴" in str(val): return styles + 'background-color: #f8d7da; color: #721c24;'
-        elif "🟠" in str(val): return styles + 'background-color: #fff3cd; color: #856404;'
-        return 'text-align: center !important; justify-content: center !important;'
-
-    # إعداد التنسيق الرياضي الموحد لضمان صفاء الأسعار برقمين بعد الفاصلة
-    styled_format = {
-        'السعر الحالي': '{:.2f}',
-        'الهدف (TP)': '{:.2f}',
-        'الوقف (SL)': '{:.2f}',
-        'مؤشر RSI': '{:.1f}',
-        'مكرر P/E': '{:.1f}'
-    }
 
     # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي الموسط
-    st.subheader("🔍 الاستعلام الفني الفوري برقم السهم")
+    st.markdown("<h3 style='text-align:center; color:#38bdf8; font-size:18px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "", key="center_search_box").strip()
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
-            # تم إصلاح الصياغة البرمجية وحذف الكلمة المسببة للخطأ تماماً هنا
-            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-            st.dataframe(styled_search, use_container_width=True)
+            item = search_res.iloc[0]
+            bg_color = "#14532d" if "🟢" in item['القرار والفلترة'] else ("#7f1d1d" if "🔴" in item['القرار والفلترة'] else "#7c2d12")
+            
+            p_val = f"{float(item['السعر الحالي']):.2f}"
+            t_val = f"{float(item['الهدف (TP)']):.2f}"
+            s_val = f"{float(item['الوقف (SL)']):.2f}"
+            r_val = f"{float(item['مؤشر RSI']):.1f}"
+            pe_val = f"{float(item['مكرر P/E']):.1f}"
+            sig_val = str(item['قوة الإشارة'])
+            
+            card_html = f'<div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">'
+            card_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">'
+            card_html += f"<span>📈 {item['اسم السهم']} ({item['الرمز']})</span><span>{item['القرار والفلترة']}</span></div>"
+            card_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff20;">'
+            card_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:13px; text-align:center;">'
+            card_html += f"<div><b>السعر:</b><br>{p_val}</div><div><b>الهدف:</b><br>{t_val}</div><div><b>الوقف:</b><br>{s_val}</div>"
+            card_html += f"<div><b>RSI:</b><br>{r_val}</div><div><b>P/E:</b><br>{pe_val}</div><div><b>النقاط:</b><br>{sig_val}</div></div></div>"
+            st.markdown(card_html, unsafe_allow_html=True)
+            
             s_df = all_dfs[search_code]
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#06b6d4', width=2.5)))
@@ -307,18 +306,52 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية لآخر 100 شمعة", x=0.5, xanchor='center'))
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق الموسط والمصلح بالكامل
-    st.subheader("🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)")
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق مصممة بنظام البطاقات المرنة للجوال
+    st.markdown("<h3 style='text-align:center; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
+    
     if not buy_df.empty:
-        styled_buy = buy_df.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-        st.dataframe(styled_buy, use_container_width=True)
+        for idx, item in buy_df.iterrows():
+            p_val = f"{float(item['السعر الحالي']):.2f}"
+            t_val = f"{float(item['الهدف (TP)']):.2f}"
+            s_val = f"{float(item['الوقف (SL)']):.2f}"
+            r_val = f"{float(item['مؤشر RSI']):.1f}"
+            pe_val = f"{float(item['مكرر P/E']):.1f}"
+            sig_val = str(item['قوة الإشارة'])
+            
+            b_html = '<div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">'
+            b_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;">'
+            b_html += f"<span>🟢 {item['اسم السهم']} (رمز: {item['الرمز']})</span><span style='color:#4ade80;'>{item['القرار والفلترة']}</span></div>"
+            b_html += f"<div style='margin-top:2px; font-size:12px; color:#94a3b8;'>القطاع: {item['القطاع']}</div>"
+            b_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff10;">'
+            b_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; font-size:12px; text-align:center; color:#e2e8f0;">'
+            b_html += f"<div><b>السعر الحالي</b><br><span style='color:#38bdf8; font-weight:bold;'>{p_val}</span></div>"
+            b_html += f"<div><b>الهدف (TP)</b><br><span style='color:#4ade80; font-weight:bold;'>{t_val}</span></div>"
+            b_html += f"<div><b>الوقف (SL)</b><br><span style='color:#f87171; font-weight:bold;'>{s_val}</span></div>"
+            b_html += f"<div><b>مؤشر RSI</b><br>{r_val}</div><div><b>مكرر P/E</b><br>{pe_val}</div>"
+            b_html += f"<div><b>القوة الرقمية</b><br><span style='color:#c084fc; font-weight:bold;'>{sig_val} نقاط</span></div></div></div>"
+            st.markdown(b_html, unsafe_allow_html=True)
     else:
-        st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
+        st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً
-    st.subheader("📋 جدول ومراقبة السوق السعودي الشامل الكامل")
-    styled_all = df_display.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-    st.dataframe(styled_all, use_container_width=True, height=450)
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل بنظام البطاقات الملكية المدمجة
+    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 شاشة مراقبة وتصنيف كامل شركات تاسي</h3>", unsafe_allow_html=True)
+    for idx, item in df_display.iterrows():
+        border_clr = "#22c55e" if "🟢" in item['القرار والفلترة'] else ("#ef4444" if "🔴" in item['القرار والفلترة'] else "#f59e0b")
+        p_val = f"{float(item['السعر الحالي']):.2f}"
+        t_val = f"{float(item['الهدف (TP)']):.2f}"
+        s_val = f"{float(item['الوقف (SL)']):.2f}"
+        r_val = f"{float(item['مؤشر RSI']):.1f}"
+        pe_val = f"{float(item['مكرر P/E']):.1f}"
+        sig_val = str(item['قوة الإشارة'])
+        
+        all_html = f'<div style="background-color:#111827; padding:14px; border-radius:10px; margin-bottom:10px; border-right:5px solid {border_clr}; direction:rtl; text-align:right;">'
+        all_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; color:#f3f4f6;">'
+        all_html += f"<span>🦅 {item['اسم السهم']} (الرمز: {item['الرمز']})</span><span>{item['القرار والفلترة']}</span></div>"
+        all_html += '<hr style="margin:6px 0; border:0; border-top:1px solid #ffffff05;">'
+        all_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; font-size:12px; text-align:center; color:#d1d5db;">'
+        all_html += f"<div><b>السعر:</b> {p_val}</div><div><b>الهدف:</b> {t_val}</div><div><b>الوقف:</b> {s_val}</div>"
+        all_html += f"<div><b>RSI:</b> {r_val}</div><div><b>P/E:</b> {pe_val}</div><div><b>قوة الإشارة:</b> {sig_val}</div></div></div>"
+        st.markdown(all_html, unsafe_allow_html=True)
 else:
-    st.info("المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.")
+    st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
