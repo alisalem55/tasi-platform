@@ -14,14 +14,16 @@ import time
 import plotly.graph_objects as go
 from streamlit_cookies_controller import CookieController
 
-# استدعاء متحكم الذاكرة الدائمة للجهاز (Cookies) لعام كامل
+# استدعاء متحكم الذاكرة الدائمة للجهاز (Cookies) لمدة سنة كاملة
 controller = CookieController()
 DB_FILE = "secure_device_locks.json"
 
+# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك
 def save_device_locks(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
+# دالة لقراءة أقفال الأجهزة المسجلة
 def load_device_locks():
     if not os.path.exists(DB_FILE):
         return {}
@@ -31,26 +33,28 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 [مركز الأمان] اكتب أسماء عملائك هنا داخل الكود لكي لا يضيعوا عند الخروج نهائياً
+# 📋 🔒 [هنا جدول المشتركين الدائم للأبد]
+# أي مشترك جديد تولده من لوحة التحكم، انسخ السطر الخاص به وضعه هنا مباشرة لكي لا ينحذف أبداً
 STATIC_LICENSES = {
-    "ADMIN-TASI-2026": {"owner": "المشرف العام", "expiry": "2030-12-31"},
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
     "TASI-HAMEED-77": {"owner": "حامد الطلحي", "expiry": "2027-01-01"},
-    # الصق السطر البرمجي للمشترك الجديد هنا بالأسفل دائماً للمحافظة عليه 🔒
+    # ضع المشتركين الجدد تحت هذا السطر دائماً بنفس الطريقة
 }
 
 MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
 
+# خوارزمية استخراج البصمة الفريدة والصلبة لجهاز المستخدم لمنع التشارك
 def get_strict_device_fingerprint():
     headers = st.context.headers
     user_agent = headers.get("User-Agent", "Unknown_Device")
     accept_lang = headers.get("Accept-Language", "Unknown_Lang")
     return f"{user_agent}_{accept_lang}"
 
-# --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة بملء الشاشة ---
+# إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
+# حقن كود التصميم المطور لإجبار كافة الجداول، والنصوص، والأرقام على التمركز في المنتصف تماماً
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
@@ -64,20 +68,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# تصميم هيدر المنصة الفاخر المدمج بشعار الصقر ثلاثي الأبعاد والنيون الأزرق
+# هيدر ملكي فاخر مدمج به صورة الصقر الحقيقية الثلاثية الأبعاد التي أرسلتها كشعار رسمي وموسط
 st.markdown("""
-    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
-        <img src="https://ibb.co" style="width:120px; border-radius:50%; border:3px solid #0284c7; margin-bottom:15px; box-shadow: 0 0 20px #0284c7;">
-        <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
-        <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            نظام التثبيت البرمجي الصامد لمنع حظر المشتركين | خاصية فحص المتصفح وعدم التزامن 🔒
+    <div style="background-color:#0f172a; padding:25px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center;">
+        <img src="https://pngtree.com" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border: 3px solid #0284c7; margin-bottom:15px; box-shadow: 0 0 15px #0284c7;">
+        <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:26px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
+        <p style="color:#38bdf8; margin:8px 0 0 0; font-size:14px; font-weight:500; text-align:center;">
+            نظام التوليد الموثوق والربط البرمجي الصلب الدائم | شاشة واحدة لكل مشترك 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
 current_device_fingerprint = get_strict_device_fingerprint()
 saved_key = controller.get("tasi_saved_license_key")
 
-# لوحة المؤشرات الرقمية الذكية المحدثة
+# لوحة المؤشرات الرقمية الذكية (Dashboard Cards) موسطة بالكامل
 card_col1, card_col2, card_col3 = st.columns(3)
 with card_col1:
     st.markdown("""<div style="background-color:#1e293b; padding:15px; border-radius:12px; border-right:6px solid #38bdf8; text-align:center;">
@@ -107,10 +111,10 @@ is_admin = False
 is_access_granted = False
 block_reason = ""
 
-# شاشة الدخول المحدثة لتعمل بكفاءة مطلقة على شاشات الكمبيوتر واللابتوب والجوال
+# شاشة الدخول المنبثقة التلقائية لمرة واحدة في السنة
 if not saved_key:
     with st.expander("🔑 اضغط هنا لفتح نافذة تسجيل الدخول وتفعيل المنصة", expanded=True):
-        st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرف الصغيرة والكبيرة):</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرف الصغيرة والكبيرة دون اختلاف):</div>", unsafe_allow_html=True)
         user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
         user_key_upper = user_key.upper() if user_key else ""
         
@@ -144,7 +148,7 @@ else:
     with out_col1:
         st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
-# فحص الصلاحيات الأمنية
+# التحقق الصارم من التزامن
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
@@ -168,9 +172,11 @@ if not is_access_granted:
         </div>
     """, unsafe_allow_html=True)
     st.stop()
+
+# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة للنسخ إلى جيت هاب مباشرة (تضمن بقاء المشتركين للأبد)
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px; text-align:center;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم وإنتاج الأكواد الصامدة للمشرف</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التوليد الفوري للمشرف (نسخ ولصق صلب لـ GitHub)</h2>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     with col1: sub_name = st.text_input("اسم المشترك الجديد للإنتاج:", "مبارك الدوسري")
@@ -182,23 +188,18 @@ if is_admin:
             clean_part = raw_uuid[:8].upper()
             generated_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول لحفظه للأبد:")
+            st.success("🎉 تم التوليد بنجاح! انسخ هذا السطر وضعه بيدك في الكود بالقسم الأول تحت سطر حامد الطلحي مباشرة:")
             st.code(f'    "{generated_key}": {{"owner": "{sub_name}", "expiry": "{calc_expiry}"}},')
             
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 الأكواد الحالية المدمجة بصلب النظام (صامدة ولا تمحى عند الخروج):</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين المحمية والنشطة برمجياً في الكود حالياً:</p>", unsafe_allow_html=True)
     for key, info in STATIC_LICENSES.items():
         inner_col1, inner_col2, inner_col3 = st.columns(3)
         with inner_col1: st.markdown(f"<p style='text-align:center;'>👤 **المشترك:** {info['owner']} | 📅 **ينتهي:** {info['expiry']}</p>", unsafe_allow_html=True)
         with inner_col2: st.code(key)
-        with inner_col3: st.button("📋 نسخ الكود", key=f"btn_copy_{key}")
-        
-    st.markdown("---")
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق النسخ الاحتياطي الكلي لقاعدة البيانات (لنسخها بضغطة زر عند التحديث الكلي):</p>", unsafe_allow_html=True)
-    full_backup_text = json.dumps(STATIC_LICENSES, ensure_ascii=False, indent=4)
-    st.text_area("انسخ هذا المربع بالكامل للحفاظ على عملائك خارج السيرفر:", value=full_backup_text, height=120)
+        with inner_col3: st.button("📋 نسخ الكود للواتساب", key=f"btn_copy_{key}")
     st.markdown("</div>", unsafe_allow_html=True)
 
-calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة", expanded=False)
+calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة (توسيط رقمي تام)", expanded=False)
 with calc_exp:
     c_col1, c_col2, c_col3, c_col4 = st.columns(4)
     with c_col1: capital = st.number_input("إجمالي رأس المال المتوفر (ريال)", min_value=1000, value=50000, step=5000)
@@ -208,9 +209,8 @@ with calc_exp:
     if entry_price > sl_price:
         allowed_loss = capital * (risk_percent / 100)
         shares = int(allowed_loss / (entry_price - sl_price))
-        st.info(f"📈 **خطة إدارة رأس المال:** عدد الأسهم الآمن للشراء: **{shares} سهم** | السيولة المطلوبة لتخصيصها: **{shares * entry_price:.2f} ريال**")
-
-# ================= مصفوفة كامل أسهم السوق السعودي (تاسي) موحدة وجاهزة =================
+        st.info(f"📈 **خطة إدارة رأس المال موسطة:** عدد الأسهم الآمن للشراء: **{shares} سهم** | السيولة المطلوبة لتخصيصها: **{shares * entry_price:.2f} ريال**")
+# ================= مصفوفة كامل أسهم السوق السعودي (تاسي) موحدة وجاهزة بعد إضافة جرير =================
 TICKERS = {
     '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
     '1060': 'الأول (SAB)', '1080': 'العربي الوطني', '1120': 'مصرف الراجحي', '1140': 'بنك البلاد',
@@ -318,7 +318,7 @@ if 'df_display' in st.session_state:
             sig_val = str(row_data['قوة الإشارة'])
             
             card_html = f'<div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">'
-            card_html += f'<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">'
+            card_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">'
             card_html += f"<span>📈 {row_data['اسم السهم']} ({row_data['الرمز']})</span><span>{row_data['القرار والفلترة']}</span></div>"
             card_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff20;">'
             card_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:13px; text-align:center;">'
@@ -346,39 +346,4 @@ if 'df_display' in st.session_state:
             pe_val = f"{float(item['مكرر P/E']):.1f}"
             sig_val = str(item['قوة الإشارة'])
             
-            b_html = '<div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">'
-            b_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;">'
-            b_html += f"<span>🟢 {item['اسم السهم']} (رمز: {item['الرمز']})</span><span style='color:#4ade80;'>{item['القرار والفلترة']}</span></div>"
-            b_html += f"<div style='margin-top:2px; font-size:12px; color:#94a3b8;'>القطاع: {item['القطاع']}</div>"
-            b_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff10;">'
-            b_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; font-size:12px; text-align:center; color:#e2e8f0;">'
-            b_html += f"<div><b>السعر الحالي</b><br><span style='color:#38bdf8; font-weight:bold;'>{p_val}</span></div>"
-            b_html += f"<div><b>الهدف (TP)</b><br><span style='color:#4ade80; font-weight:bold;'>{t_val}</span></div>"
-            b_html += f"<div><b>الوقف (SL)</b><br><span style='color:#f87171; font-weight:bold;'>{s_val}</span></div>"
-            b_html += f"<div><b>مؤشر RSI</b><br>{r_val}</div><div><b>مكرر P/E</b><br>{pe_val}</div>"
-            b_html += f"<div><b>القوة الرقمية</b><br><span style='color:#c084fc; font-weight:bold;'>{sig_val} نقاط</span></div></div></div>"
-            st.markdown(b_html, unsafe_allow_html=True)
-    else:
-        st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
-
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل بنظام البطاقات الملكية المدمجة
-    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 شاشة مراقبة وتصنيف كامل شركات تاسي</h3>", unsafe_allow_html=True)
-    for idx, item in df_display.iterrows():
-        border_clr = "#22c55e" if "🟢" in item['القرار والفلترة'] else ("#ef4444" if "🔴" in item['القرار والفلترة'] else "#f59e0b")
-        p_val = f"{float(item['السعر الحالي']):.2f}"
-        t_val = f"{float(item['الهدف (TP)']):.2f}"
-        s_val = f"{float(item['الوقف (SL)']):.2f}"
-        r_val = f"{float(item['مؤشر RSI']):.1f}"
-        pe_val = f"{float(item['مكرر P/E']):.1f}"
-        sig_val = str(item['قوة الإشارة'])
-        
-        all_html = f'<div style="background-color:#111827; padding:14px; border-radius:10px; margin-bottom:10px; border-right:5px solid {border_clr}; direction:rtl; text-align:right;">'
-        all_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; color:#f3f4f6;">'
-        all_html += f"<span>🦅 {item['اسم السهم']} (الرمز: {item['الرمز']})</span><span>{item['القرار والفلترة']}</span></div>"
-        all_html += '<hr style="margin:6px 0; border:0; border-top:1px solid #ffffff05;">'
-        all_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; font-size:12px; text-align:center; color:#d1d5db;">'
-        all_html += f"<div><b>السعر:</b> {p_val}</div><div><b>الهدف:</b> {t_val}</div><div><b>الوقف:</b> {s_val}</div>"
-        all_html += f"<div><b>RSI:</b> {r_val}</div><div><b>P/E:</b> {pe_val}</div><div><b>قوة الإشارة:</b> {sig_val}</div></div></div>"
-        st.markdown(all_html, unsafe_allow_html=True)
-else:
-    st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
+            b_html = '<div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12
