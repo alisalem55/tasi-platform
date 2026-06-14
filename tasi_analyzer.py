@@ -50,20 +50,24 @@ def get_strict_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# 🛠️ [الإصلاح النهائي] تصميم أيقونة الصقر النيونية المدمجة والآمنة 100% لتظهر فوراً بملء شاشة زوارك دون أخطاء روابط
+# حقن كود التصميم المطور لتجميل الخطوط وإلغاء القوائم الجانبية لتصبح المنصة بملء الشاشة
 st.markdown("""
-    <div style="text-align: center; background-color: #0f172a; padding: 40px 20px; border-radius: 20px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px;">
-        <div style="font-size: 80px; margin-bottom: 15px; filter: drop-shadow(0 0 15px #0284c7); animation: pulse 2s infinite;">🦅</div>
-        <h1 style="color: #f8fafc; margin: 0; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 26px;">منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
-        <p style="color: #38bdf8; margin: 10px 0 0 0; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 500;">نسخة التوازن الرقمي الشامل وتوسيط الأرقام والرموز | نظام حماية المتصفحات المشتركة 🔒</p>
-    </div>
+    <style>
+        @import url('https://googleapis.com');
+        html, body, .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
+        #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
+        [data-testid="stSidebar"] { display: none !important; }
+        .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
+    </style>
 """, unsafe_allow_html=True)
 
+st.title("🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات")
+st.caption("نسخة الجداول الاحترافية والفرز المدمج الشامل وتوسيط الأرقام والرموز | نظام منع التزامن 🔒")
 st.divider()
 current_device_fingerprint = get_strict_device_fingerprint()
 saved_key = controller.get("tasi_saved_license_key")
 
-# لوحة المؤشرات الرقمية القياسية الصافية وبدون تداخل
+# لوحة المؤشرات الرقمية القياسية الصافية
 card_col1, card_col2, card_col3 = st.columns(3)
 with card_col1:
     st.metric(label="📊 الأسهم المغطاة", value="66 شركة قيادية")
@@ -269,39 +273,16 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
 if 'df_display' in st.session_state:
     df_display = st.session_state['df_display']
     all_dfs = st.session_state['all_dfs']
-
-    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي الموسط
-    st.subheader("🔍 الاستعلام الفني الفوري برقم السهم")
-    search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "", key="center_search_box").strip()
-    if search_code and search_code in all_dfs:
-        search_res = df_display[df_display['الرمز'] == search_code]
-        if not search_res.empty:
-            item = search_res.iloc[0]
-            st.info(f"📈 {item['اسم السهم']} ({item['الرمز']}) | القرار: {item['القرار والفلترة']}")
-            st.write(f"السعر الحالي: {item['السعر الحالي']:.2f} | الهدف: {item['الهدف (TP)']:.2f} | الوقف: {item['الوقف (SL)']:.2f} | RSI: {item['مؤشر RSI']:.1f} | النقاط: {item['قوة الإشارة']}")
-            
-            s_df = all_dfs[search_code]
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#06b6d4', width=2.5)))
-            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['SMA_20'], name='SMA20', line=dict(color='#f59e0b', width=1.5, dash='dash')))
-            fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية لآخر 100 شمعة", x=0.5, xanchor='center'))
-            st.plotly_chart(fig, use_container_width=True)
-
-    # 2. عرض فرص الشراء الذهبية لكامل السوق مصممة بنظام الحزم الصافية والمستقرة
-    st.subheader("🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)")
-    buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     
-    if not buy_df.empty:
-        for idx, item in buy_df.iterrows():
-            with st.container():
-                st.success(f"🟢 {item['اسم السهم']} (رمز: {item['الرمز']}) — {item['القرار والفلترة']}")
-                st.write(f"السعر الحالي: {item['السعر الحالي']:.2f} | الهدف: {item['الهدف (TP)']:.2f} | الوقف: {item['الوقف (SL)']:.2f} | RSI: {item['مؤشر RSI']:.1f} | القوة: {item['قوة الإشارة']} نقاط")
-                st.write("---")
-    else:
-        st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
+    # دالة التلوين المتقدمة ومحاذاة السنتر المشددة لوسط الخلايا (Center Alignment)
+    def style_table_rows(val):
+        styles = 'text-align: center !important; justify-content: center !important; font-weight: bold;'
+        if "🟢" in str(val): return styles + 'background-color: #d4edda; color: #155724;'
+        elif "🔴" in str(val): return styles + 'background-color: #f8d7da; color: #721c24;'
+        elif "🟠" in str(val): return styles + 'background-color: #fff3cd; color: #856404;'
+        return 'text-align: center !important; justify-content: center !important;'
 
-    # 3. شاشة مراقبة وتصنيف كامل شركات تاسي موسطة بالكامل
-    st.subheader("📋 شاشة مراقبة وتصنيف كامل شركات تاسي")
+    # إعداد التنسيق الرياضي الموحد لضمان صفاء الأسعار برقمين بعد الفاصلة
     styled_format = {
         'السعر الحالي': '{:.2f}',
         'الهدف (TP)': '{:.2f}',
@@ -309,6 +290,34 @@ if 'df_display' in st.session_state:
         'مؤشر RSI': '{:.1f}',
         'مكرر P/E': '{:.1f}'
     }
-    st.dataframe(df_display.style.format(styled_format).set_properties(**{'text-align': 'center'}), use_container_width=True, height=450)
+
+    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي الموسط
+    st.subheader("🔍 الاستعلام الفني الفوري برقم السهم")
+    search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "", key="center_search_box").strip()
+    if search_code and search_code in all_dfs:
+        search_res = df_display[df_display['الرمز'] == search_code]
+        if not search_res.empty:
+            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**Apply_Properties: {'text-align': 'center'})
+            st.dataframe(styled_search, use_container_width=True)
+            s_df = all_dfs[search_code]
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#06b6d4', width=2.5)))
+            fig.add_trace(go.Scatter(x=s_df.index, y=s_df['SMA_20'], name='SMA20', line=dict(color='#f59e0b', width=1.5, dash='dash')))
+            fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية لآخر 100 شمعة", x=0.5, xanchor='center'))
+            st.plotly_chart(fig, use_container_width=True)
+
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق الموسط والمصلح بالكامل
+    st.subheader("🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)")
+    buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
+    if not buy_df.empty:
+        styled_buy = buy_df.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
+        st.dataframe(styled_buy, use_container_width=True)
+    else:
+        st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
+
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً (الرمز والقرار ظاهرين)
+    st.subheader("📋 جدول ومراقبة السوق السعودي الشامل الكامل")
+    styled_all = df_display.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
+    st.dataframe(styled_all, use_container_width=True, height=450)
 else:
     st.info("المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.")
