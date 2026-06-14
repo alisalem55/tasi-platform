@@ -18,7 +18,7 @@ from streamlit_cookies_controller import CookieController
 controller = CookieController()
 DB_FILE = "secure_device_locks.json"
 
-# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك
+# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك والتزامن
 def save_device_locks(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
@@ -27,16 +27,14 @@ def save_device_locks(data):
 def load_device_locks():
     if not os.path.exists(DB_FILE):
         return {}
-    try:
-        with open(DB_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return {}
+    with open(DB_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 [قاعدة البيانات الصلبة] أسماء وأكواد عملائك ثابتة ومحصنة هنا للأبد ضد المسح والتحديث
+# 📋 [هنا الحفظ الدائم] قاعدة بيانات المشتركين الثابتة - محصنة تماماً ضد الضياع عند التحديث
+# يمكنك لصق الأكواد الاحتياطية المنسوخة من شاشة الإدارة هنا مباشرة لتثبيتها
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
@@ -55,7 +53,7 @@ def get_strict_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# حقن كود التصميم المطور لإجبار كافة العناصر على التمركز في المنتصف تماماً (Center)
+# حقن كود التصميم المطور لإجبار كافة الجداول، والنصوص، والأرقام على التمركز في المنتصف تماماً (Center)
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
@@ -63,9 +61,11 @@ st.markdown("""
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
         [data-testid="stSidebar"] { display: none !important; }
         
-        /* إجبار خلايا وعناوين الجداول والبطاقات على التمركز التام بوسط الشاشة */
+        /* إجبار خلايا وعناوين الجداول على التمركز التام بوسط الشاشة */
+        .stDataFrame th, .stDataFrame td { text-align: center !important; justify-content: center !important; }
         div[data-testid="stMarkdownContainer"] > p { text-align: center !important; }
         .stNumberInput input { text-align: center !important; }
+        
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
@@ -74,7 +74,7 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            إلغاء حساسية الحروف لتسهيل الدخول | شاشة البطاقات النيونية موسطة بالكامل للجوال 🔒
+            إلغاء حساسية الحروف لتسهيل الدخول | مركز النسخ الاحتياطي المطور لحماية بيانات المشتركين 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -116,14 +116,13 @@ if not saved_key:
     with st.expander("🔑 اضغط هنا لفتح نافذة تسجيل الدخول وتفعيل المنصة", expanded=True):
         st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرف الصغيرة والكبيرة دون اختلاف):</div>", unsafe_allow_html=True)
         user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
-        
         user_key_upper = user_key.upper() if user_key else ""
         
         if st.button("💾 تفعيل وحفظ الهوية في المتصفح"):
             if user_key_upper == MASTER_ADMIN_KEY or user_key_upper in STATIC_LICENSES:
                 locks = st.session_state['DEVICE_LOCKS'] if 'DEVICE_LOCKS' in st.session_state else load_device_locks()
                 if user_key_upper in locks and locks[user_key_upper] != current_device_fingerprint:
-                    st.error("🚨 عذراً، هذا الكود مستخدم حالياً في جهاز آخر! يرجى إغلاقه من الجهاز الأول أولاً.")
+                    st.error("🚨 عذراً، هذا الكود مستخدم حالياً في جهاز آخر! يرجى تسجيل الخروج منه أولاً.")
                 else:
                     if user_key_upper != MASTER_ADMIN_KEY:
                         locks[user_key_upper] = current_device_fingerprint
@@ -149,14 +148,13 @@ else:
     with out_col1:
         st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
-# التحقق الصارم من التزامن دون تجميد الكود للأبد
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
 elif user_key_active in STATIC_LICENSES:
     locks = load_device_locks()
     if user_key_active in locks and locks[user_key_active] != current_device_fingerprint:
-        block_reason = "🚨 عذراً، هذا الاشتراك مفتوح حالياً على جهاز آخر! يرجى إغلاقه من الجهاز الأول لتتمكن من القراءة هنا."
+        block_reason = "🚨 عذراً، هذا الاشتراك مفتوح حالياً على جهاز آخر! يرجى إغلاقه من الجهاز الأول أولاً."
     else:
         license_info = STATIC_LICENSES[user_key_active]
         expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
@@ -199,22 +197,14 @@ if is_admin:
         with inner_col2: st.code(key)
         with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
         
-    # 📥 [هنا طلبك] خانة استخراج واستعادة النسخ الاحتياطي لأقفال الأجهزة لمنع الخروج مع التحديثات
+    # 🗄️ [صندوق النسخ الاحتياطي الجديد] يحافظ على الأكواد جاهزة للنسخ التام عند التحديث
     st.markdown("---")
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 مركز إدارة واسترداد أقفال أجهزة المشتركين الفعالة:</p>", unsafe_allow_html=True)
-    current_locks_str = json.dumps(st.session_state['DEVICE_LOCKS'], ensure_ascii=False)
-    imported_locks = st.text_area("انسخ هذا النص واحفظه عندك، وإذا حدثت الكود الصق النص القديم هنا واضغط حفظ لاستعادة أجهزة عملاؤك فوراً:", value=current_locks_str, height=90)
-    if st.button("💾 حفظ واسترداد الأجهزة من النص الملتصق"):
-        try:
-            parsed_locks = json.loads(imported_locks)
-            st.session_state['DEVICE_LOCKS'] = parsed_locks
-            save_device_locks(parsed_locks)
-            st.success("🎯 تم استيراد وتأمين أجهزة كافة المشتركين بنجاح دون خروج أي عميل!")
-            time.sleep(0.5)
-            st.rerun()
-        except:
-            st.error("❌ صيغة النص الملتصق غير صحيحة، يرجى التأكد من نسخ النص الاحتياطي كاملاً.")
-            
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق النسخ الاحتياطي لبيانات المشتركين الحاليين:</p>", unsafe_allow_html=True)
+    
+    # تحويل المشتركين الحاليين لصيغة برمجية نظيفة للنسخ المباشر
+    backup_lines = ",\n".join([f'    "{k}": {{"owner": "{v["owner"]}", "expiry": "{v["expiry"]}"}}' for k, v in STATIC_LICENSES.items()])
+    final_backup_text = f"STATIC_LICENSES = {{\n{backup_lines}\n}}"
+    st.text_area("انسخ محتوى هذا المربع واحفظه عندك في النوتة، وعند تحديث الكود في جيت هاب استبدل به قائمة المشتركين مباشرة:", value=final_backup_text, height=120)
     st.markdown("</div>", unsafe_allow_html=True)
 
 calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة (توسيط رقمي تام)", expanded=False)
