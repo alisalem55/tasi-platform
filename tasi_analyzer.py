@@ -50,15 +50,15 @@ def get_strict_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# 🛠️ [الإصلاح الجذري والقاطع] استدعاء الشعار عبر نظام مصفوفة الويب لضمان تشغيله فوراً وبأعلى سرعة دون أخطاء تخزينية
+# 🛠️ [الإصلاح النهائي] تصميم أيقونة الصقر النيونية المدمجة والآمنة 100% لتظهر فوراً بملء شاشة زوارك دون أخطاء روابط
 st.markdown("""
-    <div style="text-align: center; margin-bottom: 20px;">
-        <img src="https://unsplash.com" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+    <div style="text-align: center; background-color: #0f172a; padding: 40px 20px; border-radius: 20px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px;">
+        <div style="font-size: 80px; margin-bottom: 15px; filter: drop-shadow(0 0 15px #0284c7); animation: pulse 2s infinite;">🦅</div>
+        <h1 style="color: #f8fafc; margin: 0; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 26px;">منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
+        <p style="color: #38bdf8; margin: 10px 0 0 0; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 500;">نسخة التوازن الرقمي الشامل وتوسيط الأرقام والرموز | نظام حماية المتصفحات المشتركة 🔒</p>
     </div>
 """, unsafe_allow_html=True)
 
-st.title("🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات")
-st.caption("نسخة التوازن الرقمي الشامل وتوسيط الأرقام والرموز | نظام حماية المتصفحات المشتركة 🔒")
 st.divider()
 current_device_fingerprint = get_strict_device_fingerprint()
 saved_key = controller.get("tasi_saved_license_key")
