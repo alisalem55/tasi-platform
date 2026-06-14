@@ -18,7 +18,7 @@ from streamlit_cookies_controller import CookieController
 controller = CookieController()
 DB_FILE = "secure_device_locks.json"
 
-# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك
+# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك والتزامن
 def save_device_locks(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
@@ -33,16 +33,18 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 قاعدة بيانات المشتركين الثابتة داخل الكود للأبد (تكتب بحروف كبيرة دائماً)
+# 📋 [هنا الحل النهائي] قائمة المشتركين الثابتة داخل الكود للأبد لكي لا تضيع عند تحديث السيرفر
+# أضف أي مشترك جديد هنا برمز كبير، واسم المشترك، وتاريخ الانتهاء بدقة
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
     "TASI-HAMEED-77": {"owner": "حامد الطلحي", "expiry": "2027-01-01"},
+    "TASI-SULTAN-99": {"owner": "أبو سلطان", "expiry": "2026-09-30"},
 }
 
 MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
 
-# --- خوارزمية ذكية بديلة للـ IP: استخراج البصمة الفريدة والصلبة لجهاز المستخدم لمنع التشارك ---
+# --- خوارزمية ذكية لاستخراج البصمة الفريدة والصلبة لجهاز المستخدم لمنع التشارك ---
 def get_strict_device_fingerprint():
     headers = st.context.headers
     user_agent = headers.get("User-Agent", "Unknown_Device")
@@ -52,7 +54,7 @@ def get_strict_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# حقن كود التصميم المطور لإجبار كافة الجداول، والنصوص، والأرقام على التمركز في المنتصف تماماً (Center)
+# حقن كود التصميم المطور لإجبار كافة القوائم والبطاقات والأرقام على التمركز في المنتصف تماماً (Center)
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
@@ -60,11 +62,8 @@ st.markdown("""
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
         [data-testid="stSidebar"] { display: none !important; }
         
-        /* إجبار خلايا وعناوين الجداول على التمركز التام بوسط الشاشة */
-        .stDataFrame th, .stDataFrame td { text-align: center !important; justify-content: center !important; }
         div[data-testid="stMarkdownContainer"] > p { text-align: center !important; }
         .stNumberInput input { text-align: center !important; }
-        
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
@@ -73,7 +72,7 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            إلغاء حساسية الحروف تماماً لتسهيل الدخول | واجهة البطاقات الملكية الفاخرة المخصصة للهواتف 🔒
+            قاعدة بيانات صلبة ومثبتة للأعضاء | نظام منع فتح الحساب من جهازين متزامنين في وقت واحد 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -105,23 +104,24 @@ with card_col3:
         </div>""", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-user_key_active = saved_key
+user_key_active = ""
 is_admin = False
 is_access_granted = False
 block_reason = ""
 
-# شاشة الدخول المنبثقة التلقائية لمرة واحدة في السنة
+# شاشة الدخول المنبثقة التلقائية لمرة واحدة في السنة لزوار الموقع
 if not saved_key:
     with st.expander("🔑 اضغط هنا لفتح نافذة تسجيل الدخول وتفعيل المنصة", expanded=True):
         st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرف الصغيرة والكبيرة دون اختلاف):</div>", unsafe_allow_html=True)
         user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
         
-        # تحويل المدخلات تلقائياً إلى حروف كبيرة لإلغاء الحساسية
+        # إلغاء حساسية الأحرف بتحويل الإدخال يميناً ويساراً لحروف كبيرة مطابقة
         user_key_upper = user_key.upper() if user_key else ""
         
         if st.button("💾 تفعيل وحفظ الهوية في المتصفح"):
             if user_key_upper == MASTER_ADMIN_KEY or user_key_upper in STATIC_LICENSES:
                 locks = st.session_state['DEVICE_LOCKS'] if 'DEVICE_LOCKS' in st.session_state else load_device_locks()
+                # منع تشارك الأكواد: التنبيه بعدم التزامن من جهاز آخر بدلاً من الحظر الكلي
                 if user_key_upper in locks and locks[user_key_upper] != current_device_fingerprint:
                     st.error("🚨 عذراً، هذا الكود مستخدم حالياً في جهاز آخر! يرجى تسجيل الخروج منه أولاً.")
                 else:
@@ -149,7 +149,7 @@ else:
     with out_col1:
         st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
-# التحقق الصارم من التزامن بدون تجميد الكود للأبد
+# التحقق الصارم من التزامن دون تجميد الكود للأبد
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
@@ -174,10 +174,10 @@ if not is_access_granted:
     """, unsafe_allow_html=True)
     st.stop()
 
-# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة وتوسيط مستعرض البيانات اليدوي
+# لوحة التحكم ومراجعة المشتركين وإنتاج الصيغ الصلبة الجاهزة
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px; text-align:center;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم وإدارة أقفال الأجهزة للمشرف</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم ومراجعة المشتركين للمشرف</h2>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     with col1: sub_name = st.text_input("اسم المشترك الجديد للإنتاج:", "مبارك الدوسري")
@@ -189,10 +189,10 @@ if is_admin:
             clean_part = raw_uuid[:8].upper()
             generated_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول:")
+            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول داخل مصفوفة المشتركين:")
             st.code(f'"{generated_key}": {{"owner": "{sub_name}", "expiry": "{calc_expiry}"}},')
             
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 الأكواد والأسماء المسجلة والمثبتة حالياً في نظامك للأبد (موسطة تلقائياً):</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 المشتركون المثبتون حالياً في نظام الكود (موسطون لسهولة المراجعة والنسخ):</p>", unsafe_allow_html=True)
     for key, info in STATIC_LICENSES.items():
         inner_col1, inner_col2, inner_col3 = st.columns(3)
         with inner_col1: st.markdown(f"<p style='text-align:center;'>👤 **المشترك:** {info['owner']} | 📅 **ينتهي:** {info['expiry']}</p>", unsafe_allow_html=True)
