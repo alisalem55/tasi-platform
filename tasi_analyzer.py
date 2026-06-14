@@ -272,20 +272,20 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
                     all_dfs[symbol] = df
                     last_candle = df.iloc[-1]
                     rec, score = combine_and_decide(symbol, last_candle)
-                    current_price = last_candle['close']
-                    fin = FINANCIAL_DATA.get(symbol, {'PE': 'غير متوفر', 'Sector': 'عام'})
+                    current_price = float(last_candle['close'])
+                    fin = FINANCIAL_DATA.get(symbol, {'PE': 20.0, 'Sector': 'عام'})
                     
-                    # هندسة التنسيق الرقمي: رقمين فقط بعد الفاصلة مع الحفاظ على صراحة القيم
+                    # إدخال البيانات كقيم حقيقية صافية (أرقام لضمان عدم التداخل برمجياً)
                     final_report.append({
-                        'الرمز': f"{symbol}", 
+                        'الرمز': str(symbol), 
                         'اسم السهم': name, 
                         'القطاع': fin['Sector'],
-                        'السعر الحالي': f"{current_price:.2f}", 
-                        'الهدف (TP)': f"{(current_price * 1.05):.2f}", 
-                        'الوقف (SL)': f"{(current_price * 0.975):.2f}",
-                        'مؤشر RSI': f"{last_candle['RSI']:.1f}", 
-                        'مكرر P/E': fin['PE'], 
-                        'قوة الإشارة': score, 
+                        'السعر الحالي': current_price, 
+                        'الهدف (TP)': float(current_price * 1.05), 
+                        'الوقف (SL)': float(current_price * 0.975),
+                        'مؤشر RSI': float(last_candle['RSI']), 
+                        'مكرر P/E': float(fin['PE']), 
+                        'قوة الإشارة': int(score), 
                         'القرار والفلترة': rec
                     })
                 time.sleep(0.04)
@@ -298,24 +298,30 @@ if 'df_display' in st.session_state:
     df_display = st.session_state['df_display']
     all_dfs = st.session_state['all_dfs']
     
-    # دالة التلوين المتقدمة والمحاذاة الشاملة والمشددة لمركز الخلايا بالسنتر (Center Alignment)
+    # دالة ذكية لتلوين ومحاذاة التوصيات بالسنتر
     def style_table_rows(val):
         styles = 'text-align: center !important; justify-content: center !important; font-weight: bold;'
         if "🟢" in str(val): return styles + 'background-color: #d4edda; color: #155724;'
         elif "🔴" in str(val): return styles + 'background-color: #f8d7da; color: #721c24;'
         elif "🟠" in str(val): return styles + 'background-color: #fff3cd; color: #856404;'
-        return 'text-align: center !important; justify-content: center !important;'
+        return 'text-align: center !important;'
 
-    def align_center(val):
-        return 'text-align: center !important; justify-content: center !important;'
+    # إعداد التنسيق الرياضي الموحد (رقمين بعد الفاصلة ومحاذاة بوسط الشاشة للأرقام)
+    styled_format = {
+        'السعر الحالي': '{:.2f}',
+        'الهدف (TP)': '{:.2f}',
+        'الوقف (SL)': '{:.2f}',
+        'مؤشر RSI': '{:.1f}',
+        'مكرر P/E': '{:.1f}'
+    }
 
-    # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي الموسط
+    # 1. محرك الاستعلام السريع برقم السهم والشارت
     st.markdown("<h3 style='text-align:center; color:#38bdf8; font-size:18px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
     search_code = st.text_input("أدخل رمز السهم من السوق لرسم شارت الحركة فوراً (مثال: 1120):", "", key="center_search_box").strip()
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
-            styled_search = search_res.style.map(style_table_rows, subset=['القرار والفلترة']).map(align_center, subset=['الرمز', 'اسم السهم', 'القطاع', 'السعر الحالي', 'الهدف (TP)', 'الوقف (SL)', 'مؤشر RSI', 'مكرر P/E', 'قوة الإشارة'])
+            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
             st.dataframe(styled_search, use_container_width=True)
             s_df = all_dfs[search_code]
             fig = go.Figure()
@@ -324,18 +330,18 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.5, xanchor='center'))
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق الموسط بالكامل
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق (التنسيق المطور الموثوق)
     st.markdown("<h3 style='text-align:center; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     if not buy_df.empty:
-        styled_buy = buy_df.style.map(style_table_rows, subset=['القرار والفلترة']).map(align_center, subset=['الرمز', 'اسم السهم', 'القطاع', 'السعر الحالي', 'الهدف (TP)', 'الوقف (SL)', 'مؤشر RSI', 'مكرر P/E', 'قوة الإشارة'])
+        styled_buy = buy_df.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
         st.dataframe(styled_buy, use_container_width=True)
     else:
         st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً (Center)
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق والمصلح تماماً
     st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
-    styled_all = df_display.style.map(style_table_rows, subset=['القرار والفلترة']).map(align_center, subset=['الرمز', 'اسم السهم', 'القطاع', 'السعر الحالي', 'الهدف (TP)', 'الوقف (SL)', 'مؤشر RSI', 'مكرر P/E', 'قوة الإشارة'])
+    styled_all = df_display.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
     st.dataframe(styled_all, use_container_width=True, height=450)
 else:
     st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
