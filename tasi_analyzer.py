@@ -33,7 +33,7 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 قاعدة بيانات المشتركين الثابتة داخل الكود للأبد (تكتب هنا بحروف كبيرة دائماً)
+# 📋 قاعدة بيانات المشتركين الثابتة داخل الكود للأبد (تكتب بحروف كبيرة دائماً)
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
@@ -73,7 +73,7 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            إلغاء حساسية الحروف تماماً لتسهيل الدخول | تمركز بصري شامل ومحاذاة لكافة الأعمدة والقرارات 🔒
+            إلغاء حساسية الحروف تماماً لتسهيل الدخول | واجهة البطاقات الملكية الفاخرة المخصصة للهواتف 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -116,7 +116,7 @@ if not saved_key:
         st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرف الصغيرة والكبيرة دون اختلاف):</div>", unsafe_allow_html=True)
         user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
         
-        # [هنا الحل لإلغاء حساسية الحروف] تحويل المدخلات تلقائياً إلى حروف كبيرة لمطابقتها بالنظام
+        # تحويل المدخلات تلقائياً إلى حروف كبيرة لإلغاء الحساسية
         user_key_upper = user_key.upper() if user_key else ""
         
         if st.button("💾 تفعيل وحفظ الهوية في المتصفح"):
@@ -136,7 +136,6 @@ if not saved_key:
                 st.error("عذراً، رمز التفعيل غير صحيح أو غير مسجل!")
     user_key_active = user_key_upper
 else:
-    # إلغاء حساسية الكوكيز المخزنة مسبقاً لضمان عدم حدوث تعارض
     user_key_active = saved_key.upper() if saved_key else ""
     out_col1, out_col2 = st.columns(2)
     with out_col2:
@@ -285,11 +284,11 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
                         'الرمز': str(symbol).strip(), 
                         'اسم السهم': str(name).strip(), 
                         'القطاع': fin['Sector'],
-                        'السعر': current_price, 
-                        'الهدف': float(current_price * 1.05), 
-                        'الوقف': float(current_price * 0.975),
-                        'RSI': float(last_candle['RSI']), 
-                        'P/E': float(fin['PE']), 
+                        'السعر الحالي': current_price, 
+                        'الهدف (TP)': float(current_price * 1.05), 
+                        'الوقف (SL)': float(current_price * 0.975),
+                        'مؤشر RSI': float(last_candle['RSI']), 
+                        'مكرر P/E': float(fin['PE']), 
                         'قوة الإشارة': int(score), 
                         'القرار والفلترة': str(rec).strip()
                     })
@@ -302,44 +301,6 @@ if st.button("🔄 سحب أسعار وتحديث كامل السوق الآن",
 if 'df_display' in st.session_state:
     df_display = st.session_state['df_display']
     all_dfs = st.session_state['all_dfs']
-    
-    def style_table_rows(val):
-        styles = 'text-align: center !important; font-weight: bold; font-size: 11px !important;'
-        if "🟢" in str(val): return styles + 'background-color: #d4edda; color: #155724;'
-        elif "🔴" in str(val): return styles + 'background-color: #f8d7da; color: #721c24;'
-        elif "🟠" in str(val): return styles + 'background-color: #fff3cd; color: #856404;'
-        return 'text-align: center !important; font-size: 11px !important;'
-
-    styled_format = {
-        'السعر': '{:.2f}',
-        'الهدف': '{:.2f}',
-        'الوقف': '{:.2f}',
-        'RSI': '{:.1f}',
-        'P/E': '{:.1f}'
-    }
-
-    # 🛠️ [حقن CSS مكثف] لتقليص حجم الخلايا وإجبار الأعمدة على الانضغاط داخل الشاشة تماماً لزوار الجوال
-    st.markdown("""
-        <style>
-            div[data-testid="stDataFrame"] table { width: 100% !important; table-layout: fixed !important; }
-            div[data-testid="stDataFrame"] th { font-size: 11px !important; padding: 4px !important; text-align: center !important; }
-            div[data-testid="stDataFrame"] td { font-size: 11px !important; padding: 4px !important; text-align: center !important; white-space: normal !important; }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # تكوين أحجام أعمدة مصغرة ومختصرة للغاية لتكفي شاشة الهاتف البانورامية
-    grid_config = {
-        "الرمز": st.column_config.TextColumn("الرمز", width=45),
-        "اسم السهم": st.column_config.TextColumn("السهم", width=75),
-        "القطاع": st.column_config.TextColumn("القطاع", width=55),
-        "السعر": st.column_config.NumberColumn("السعر", width=45),
-        "الهدف": st.column_config.NumberColumn("الهدف", width=45),
-        "الوقف": st.column_config.NumberColumn("الوقف", width=45),
-        "RSI": st.column_config.NumberColumn("RSI", width=35),
-        "P/E": st.column_config.NumberColumn("P/E", width=35),
-        "قوة الإشارة": st.column_config.NumberColumn("نقاط", width=35),
-        "القرار والفلترة": st.column_config.TextColumn("القرار", width=85),
-    }
 
     # 1. محرك الاستعلام السريع برقم السهم والشارت التفاعلي الموسط
     st.markdown("<h3 style='text-align:center; color:#38bdf8; font-size:18px; font-weight:bold;'>🔍 الاستعلام الفني الفوري برقم السهم</h3>", unsafe_allow_html=True)
@@ -347,8 +308,26 @@ if 'df_display' in st.session_state:
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
-            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-            st.dataframe(styled_search, column_config=grid_config, use_container_width=True)
+            item = search_res.iloc[0]
+            bg_color = "#1e4620" if "🟢" in item['القرار والفلترة'] else ("#7f1d1d" if "🔴" in item['القرار والفلترة'] else "#7c2d12")
+            st.markdown(f"""
+                <div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">
+                        <span>📈 {item['اسم السهم']} ({item['الرمز']})</span>
+                        <span>{item['القرار والفلترة']}</span>
+                    </div>
+                    <hr style="margin:8px 0; border:0; border-top:1px solid #ffffff20;">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:13px; text-align:center;">
+                        <div><b>السعر:</b><br>{float(item['السعر الحالي']):.2f}</div>
+                        <div><b>الهدف:</b><br>{float(item['الهدف (TP)']):.2f}</div>
+                        <div><b>الوقف:</b><br>{float(item['الوقف (SL)']):.2f}</div>
+                        <div><b>RSI:</b><br>{float(item['مؤشر RSI']):.1f}</div>
+                        <div><b>P/E:</b><br>{float(item['مكرر P/E']):.1f}</div>
+                        <div><b>النقاط:</b><br>{item['قوة الإشارة']}</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
             s_df = all_dfs[search_code]
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=s_df.index, y=s_df['close'], name='السعر', line=dict(color='#06b6d4', width=2.5)))
@@ -356,18 +335,55 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.5, xanchor='center'))
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق الموسط والمضغوط بالكامل
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق مصممة بنظام البطاقات المرنة للجوال
     st.markdown("<h3 style='text-align:center; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
+    
     if not buy_df.empty:
-        styled_buy = buy_df.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-        st.dataframe(styled_buy, column_config=grid_config, use_container_width=True)
+        for idx, item in buy_df.iterrows():
+            st.markdown(f"""
+                <div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;">
+                        <span>🟢 {item['اسم السهم']} (رمز: {item['الرمز']})</span>
+                        <span style="color:#4ade80;">{item['القرار والفلترة']}</span>
+                    </div>
+                    <div style="margin-top:2px; font-size:12px; color:#94a3b8;">القطاع: {item['القطاع']}</div>
+                    <hr style="margin:8px 0; border:0; border-top:1px solid #ffffff10;">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; font-size:12px; text-align:center; color:#e2e8f0;">
+                        <div><b>السعر الحالي</b><br><span style="color:#38bdf8; font-weight:bold;">{float(item['السعر الحالي']):.2f}</span></div>
+                        <div><b>الهدف (TP)</b><br><span style="color:#4ade80; font-weight:bold;">{float(item['الهدف (TP)']):.2f}</span></div>
+                        <div><b>الوقف (SL)</b><br><span style="color:#f87171; font-weight:bold;">{float(item['الوقف (SL)']):.2f}</span></div>
+                        <div><b>مؤشر RSI</b><br>{float(item['مؤشر RSI']):.1f}</div>
+                        <div><b>مكرر P/E</b><br>{float(item['مكرر P/E']):.1f}</div>
+                        <div><b>القوة الرقمية</b><br><span style="color:#c084fc; font-weight:bold;">{item['قوة الإشارة']} نقاط</span></div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
     else:
         st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل المنضغط بملء شاشة الجوال تماماً
-    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 جدول ومراقبة السوق السعودي الشامل الكامل</h3>", unsafe_allow_html=True)
-    styled_all = df_display.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
-    st.dataframe(styled_all, column_config=grid_config, use_container_width=True, height=450)
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل بنظام البطاقات الملكية المدمجة
+    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 شاشة مراقبة وتصنيف كامل شركات تاسي</h3>", unsafe_allow_html=True)
+    for idx, item in df_display.iterrows():
+        # تحديد لون حافة البطاقة حسب القرار الفني لمنح الموقع فخامة فورية
+        border_clr = "#22c55e" if "🟢" in item['القرار والفلترة'] else ("#ef4444" if "🔴" in item['القرار والفلترة'] else "#f59e0b")
+        card_bg = "#111827"
+        st.markdown(f"""
+            <div style="background-color:{card_bg}; padding:14px; border-radius:10px; margin-bottom:10px; border-right:5px solid {border_clr}; direction:rtl; text-align:right;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; color:#f3f4f6;">
+                    <span>🦅 {item['اسم السهم']} (الرمز: {item['الرمز']})</span>
+                    <span>{item['القرار والفلترة']}</span>
+                </div>
+                <hr style="margin:6px 0; border:0; border-top:1px solid #ffffff05;">
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; font-size:12px; text-align:center; color:#d1d5db;">
+                    <div><b>السعر:</b> {float(item['السعر الحالي']):.2f}</div>
+                    <div><b>الهدف:</b> {float(item['الهدف (TP)']):.2f}</div>
+                    <div><b>الوقف:</b> {float(item['الوقف (SL)']):.2f}</div>
+                    <div><b>RSI:</b> {float(item['مؤشر RSI']):.1f}</div>
+                    <div><b>P/E:</b> {float(item['مكرر P/E']):.1f}</div>
+                    <div><b>قوة الإشارة:</b> {item['قوة الإشارة']}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 else:
-    st.sidebar.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
