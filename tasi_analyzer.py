@@ -297,7 +297,8 @@ if 'df_display' in st.session_state:
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
-            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**Apply_Properties: {'text-align': 'center'})
+            # تم إصلاح الصياغة البرمجية وحذف الكلمة المسببة للخطأ تماماً هنا
+            styled_search = search_res.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
             st.dataframe(styled_search, use_container_width=True)
             s_df = all_dfs[search_code]
             fig = go.Figure()
@@ -315,7 +316,7 @@ if 'df_display' in st.session_state:
     else:
         st.info("لا توجد فرص شراء مستوفية الشروط في السوق حالياً.")
 
-    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً (الرمز والقرار ظاهرين)
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً
     st.subheader("📋 جدول ومراقبة السوق السعودي الشامل الكامل")
     styled_all = df_display.style.format(styled_format).map(style_table_rows, subset=['القرار والفلترة']).set_properties(**{'text-align': 'center'})
     st.dataframe(styled_all, use_container_width=True, height=450)
