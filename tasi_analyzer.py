@@ -33,8 +33,7 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 [هنا الحفظ الدائم] قاعدة بيانات المشتركين الثابتة - محصنة تماماً ضد الضياع عند التحديث
-# يمكنك لصق الأكواد الاحتياطية المنسوخة من شاشة الإدارة هنا مباشرة لتثبيتها
+# 📋 قاعدة بيانات المشتركين الثابتة داخل الكود للأبد (تكتب هنا بحروف كبيرة دائماً)
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
@@ -74,7 +73,7 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            إلغاء حساسية الحروف لتسهيل الدخول | مركز النسخ الاحتياطي المطور لحماية بيانات المشتركين 🔒
+            إلغاء حساسية الحروف لتسهيل الدخول | تمركز بصري شامل ومحاذاة لكافة الأعمدة والقرارات 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -148,13 +147,14 @@ else:
     with out_col1:
         st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
+# التحقق الصارم من التزامن دون تجميد الكود للأبد
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
 elif user_key_active in STATIC_LICENSES:
     locks = load_device_locks()
     if user_key_active in locks and locks[user_key_active] != current_device_fingerprint:
-        block_reason = "🚨 عذراً، هذا الاشتراك مفتوح حالياً على جهاز آخر! يرجى إغلاقه من الجهاز الأول أولاً."
+        block_reason = "🚨 عذراً، هذا الاشتراك مفتوح حالياً على جهاز آخر! يرجى إغلاقه من الجهاز الأول لتتمكن من القراءة هنا."
     else:
         license_info = STATIC_LICENSES[user_key_active]
         expiry_date = datetime.strptime(license_info["expiry"], "%Y-%m-%d").date()
@@ -171,8 +171,7 @@ if not is_access_granted:
         </div>
     """, unsafe_allow_html=True)
     st.stop()
-
-# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة وتوسيط مستعرض البيانات اليدوي
+# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة وتوسيط مستعرض البيانات اليدوي مع صندوق النسخ الاحتياطي لـ GitHub
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px; text-align:center;'>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم وإدارة أقفال الأجهزة للمشرف</h2>", unsafe_allow_html=True)
@@ -187,24 +186,24 @@ if is_admin:
             clean_part = raw_uuid[:8].upper()
             generated_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول:")
+            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول لحفظه بشكل دائم:")
             st.code(f'"{generated_key}": {{"owner": "{sub_name}", "expiry": "{calc_expiry}"}},')
             
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 الأكواد والأسماء المسجلة والمثبتة حالياً في نظامك للأبد (موسطة تلقائياً):</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 الأكواد والأسماء المسجلة حالياً في نظامك للأبد (موسطة تلقائياً):</p>", unsafe_allow_html=True)
     for key, info in STATIC_LICENSES.items():
         inner_col1, inner_col2, inner_col3 = st.columns(3)
         with inner_col1: st.markdown(f"<p style='text-align:center;'>👤 **المشترك:** {info['owner']} | 📅 **ينتهي:** {info['expiry']}</p>", unsafe_allow_html=True)
         with inner_col2: st.code(key)
         with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
         
-    # 🗄️ [صندوق النسخ الاحتياطي الجديد] يحافظ على الأكواد جاهزة للنسخ التام عند التحديث
+    # 📥 [هنا الحل الجديد والنهائي لحفظ الأسماء] صندوق جاهز يجمع لك كل المشتركين لنسخهم في ثانية واحدة عند حدوث أي تحديث مستقبلي
     st.markdown("---")
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق النسخ الاحتياطي لبيانات المشتركين الحاليين:</p>", unsafe_allow_html=True)
-    
-    # تحويل المشتركين الحاليين لصيغة برمجية نظيفة للنسخ المباشر
-    backup_lines = ",\n".join([f'    "{k}": {{"owner": "{v["owner"]}", "expiry": "{v["expiry"]}"}}' for k, v in STATIC_LICENSES.items()])
-    final_backup_text = f"STATIC_LICENSES = {{\n{backup_lines}\n}}"
-    st.text_area("انسخ محتوى هذا المربع واحفظه عندك في النوتة، وعند تحديث الكود في جيت هاب استبدل به قائمة المشتركين مباشرة:", value=final_backup_text, height=120)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 مركز النسخ الاحتياطي للأكواد والاشتراكات (انسخه واحتفظ به في نوتة جوالك دائماً):</p>", unsafe_allow_html=True)
+    backup_list = []
+    for k, v in STATIC_LICENSES.items():
+        backup_list.append(f'    "{k}": {{"owner": "{v["owner"]}", "expiry": "{v["expiry"]}"}},')
+    full_backup_string = "STATIC_LICENSES = {\n" + "\n".join(backup_list) + "\n}"
+    st.text_area("اضغط داخل هذا الصندوق وانسخ كل محتواه للاحتفاظ ببيانات عملائك آمنة عند تغيير الأكواد:", value=full_backup_string, height=120)
     st.markdown("</div>", unsafe_allow_html=True)
 
 calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة (توسيط رقمي تام)", expanded=False)
@@ -218,6 +217,7 @@ with calc_exp:
         allowed_loss = capital * (risk_percent / 100)
         shares = int(allowed_loss / (entry_price - sl_price))
         st.info(f"📈 **خطة إدارة رأس المال موسطة:** عدد الأسهم الآمن للشراء: **{shares} سهم** | السيولة المطلوبة لتخصيصها: **{shares * entry_price:.2f} ريال**")
+
 # ================= مصفوفة كامل أسهم السوق السعودي (تاسي) موحدة وجاهزة بعد إضافة جرير =================
 TICKERS = {
     '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
