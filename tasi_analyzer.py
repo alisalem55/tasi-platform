@@ -33,7 +33,7 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 قاعدة بيانات المشتركين الثابتة والصلبة داخل الكود لحمايتهم من الضياع نهائياً
+# 📋 قاعدة بيانات المشتركين الثابتة داخل الكود للأبد (تكتب هنا بحروف كبيرة دائماً)
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
@@ -59,22 +59,23 @@ st.markdown("""
         html, body, .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
         [data-testid="stSidebar"] { display: none !important; }
+        
+        /* إجبار خلايا وعناوين الجداول على التمركز التام بوسط الشاشة */
         .stDataFrame th, .stDataFrame td { text-align: center !important; justify-content: center !important; }
         div[data-testid="stMarkdownContainer"] > p { text-align: center !important; }
         .stNumberInput input { text-align: center !important; }
+        
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# تصميم الهيدر الملكي الجديد مدمج به صورة صقر حقيقية ثلاثية الأبعاد متحركة من الويب لرفع الفخامة
+# تصميم الهيدر الملكي الفاخر للمنصة مع أيقونة الصقر ثلاثي الأبعاد المضيء النيوني المطور
 st.markdown("""
-    <div style="background-color:#0f172a; padding:25px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
-            <img src="https://mixkit.co" style="width:70px; border-radius:50%; box-shadow: 0 0 15px #0284c7; display:none;">
-            <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:26px;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
-        </div>
-        <p style="color:#38bdf8; margin:5px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            نسخة التمركز البصري الفاخر | نظام حماية المتصفحات وحظر التزامن من جهازين 🔒
+    <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
+        <div style="font-size: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 15px #38bdf8);">🦅</div>
+        <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
+        <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
+            إلغاء حساسية الحروف تماماً لتسهيل الدخول | تمركز بصري شامل ومحاذاة لكافة الأعمدة والقرارات 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -146,9 +147,9 @@ else:
             controller.remove("tasi_saved_license_key")
             st.rerun()
     with out_col1:
-        st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط تلقائياً بوضع ملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
-# التحقق الصارم من التزامن
+# التحقق الصارم من التزامن بدون تجميد الكود للأبد
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
@@ -179,7 +180,7 @@ if is_admin:
     st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم وإدارة أقفال الأجهزة للمشرف</h2>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
-    with col1: sub_name = st.text_input("اسم المشترك الجديد للإنتاج:", "سعيد مشهر")
+    with col1: sub_name = st.text_input("اسم المشترك الجديد للإنتاج:", "مبارك الدوسري")
     with col2: sub_days = st.number_input("مدة الصلاحية بالأيام:", min_value=1, max_value=365, value=30)
     with col3:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -199,7 +200,7 @@ if is_admin:
         with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
         
     st.markdown("---")
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق التصدير الاحتياطي (انسخ هذا المربع وضعه في مفكرة جوالك لحفظ المشتركين عند تحديث الكود):</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق التصدير الكلي (انسخ هذا المربع بالكامل واحفظه عندك في حال تحديث الكود لكي لا تضيع الأسماء):</p>", unsafe_allow_html=True)
     full_backup_text = "STATIC_LICENSES = " + json.dumps(STATIC_LICENSES, ensure_ascii=False, indent=4)
     st.text_area("قاعدة البيانات الاحتياطية المكتملة للتحديث:", value=full_backup_text, height=120)
     st.markdown("</div>", unsafe_allow_html=True)
