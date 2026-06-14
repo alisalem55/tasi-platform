@@ -313,18 +313,24 @@ if 'df_display' in st.session_state:
     if search_code and search_code in all_dfs:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
-            item = search_res.iloc[0]
-            bg_color = "#14532d" if "🟢" in item['القرار والفلترة'] else ("#7f1d1d" if "🔴" in item['القرار والفلترة'] else "#7c2d12")
+            row_data = search_res.iloc[0]
+            bg_color = "#14532d" if "🟢" in row_data['القرار والفلترة'] else ("#7f1d1d" if "🔴" in row_data['القرار والفلترة'] else "#7c2d12")
             
-            # صياغة البطاقة عبر دمج النصوص الآمن لحظر أخطاء الـ SyntaxError نهائياً
-            html_card = f'<div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">'
-            html_card += f'<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;"><span>📈 {item["اسم السهم"]} ({item["الرمز"]})</span><span>{item["القرار والفلترة"]}</span></div>'
-            html_card += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff20;">'
-            html_card += f'<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:13px; text-align:center;">'
-            html_card += f'<div><b>السعر:</b><br>{float(item["السعر الحالي"]):.2f}</div><div><b>الهدف:</b><br>{float(item["الهدف (TP)"]):.2f}</div><div><b>الوقف:</b><br>{float(item["الوقف (SL)"]):.2f}</div>'
-            html_card += f'<div><b>RSI:</b><br>{float(item["مؤشر RSI"]):.1f}</div><div><b>P/E:</b><br>{float(item["مكرر P/E"]):.1f}</div><div><b>النقاط:</b><br>{item["قوة الإشارة"]}</div>'
-            html_card += '</div></div>'
-            st.markdown(html_card, unsafe_allow_html=True)
+            p_val = f"{float(row_data['السعر الحالي']):.2f}"
+            t_val = f"{float(row_data['الهدف (TP)']):.2f}"
+            s_val = f"{float(row_data['الوقف (SL)']):.2f}"
+            r_val = f"{float(row_data['مؤشر RSI']):.1f}"
+            pe_val = f"{float(row_data['مكرر P/E']):.1f}"
+            sig_val = str(row_data['قوة الإشارة'])
+            
+            card_html = f'<div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">'
+            card_html += f'<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">'
+            card_html += f"<span>📈 {row_data['اسم السهم']} ({row_data['الرمز']})</span><span>{row_data['القرار والفلترة']}</span></div>"
+            card_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff20;">'
+            card_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:13px; text-align:center;">'
+            card_html += f"<div><b>السعر:</b><br>{p_val}</div><div><b>الهدف:</b><br>{t_val}</div><div><b>الوقف:</b><br>{s_val}</div>"
+            card_html += f"<div><b>RSI:</b><br>{r_val}</div><div><b>P/E:</b><br>{pe_val}</div><div><b>النقاط:</b><br>{sig_val}</div></div></div>"
+            st.markdown(card_html, unsafe_allow_html=True)
             
             s_df = all_dfs[search_code]
             fig = go.Figure()
@@ -339,9 +345,46 @@ if 'df_display' in st.session_state:
     
     if not buy_df.empty:
         for idx, item in buy_df.iterrows():
-            card_b = f'<div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">'
-            card_b += f'<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;"><span>🟢 {item["اسم السهم"]} (رمز: {item["الرمز"]})</span><span style="color:#4ade80;">{item["القرار والفلترة"]}</span></div>'
-            card_b += f'<div style="margin-top:2px; font-size:12px; color:#94a3b8;">القطاع: {item["القطاع"]}</div><hr style="margin:8px 0; border:0; border-top:1px solid #ffffff10;">'
-            card_b += f'<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; font-size:12px; text-align:center; color:#e2e8f0;">'
-            card_b += f'<div><b>السعر الحالي</b><br><span style="color:#38bdf8; font-weight:bold;">{float(item["السعر الحالي"]):.2f}</span></div>'
-            card_b += f'<div><b>الهدف (TP)</b><br><span style="color:#4ade80; font-weight:bold;">
+            p_val = f"{float(item['السعر الحالي']):.2f}"
+            t_val = f"{float(item['الهدف (TP)']):.2f}"
+            s_val = f"{float(item['الوقف (SL)']):.2f}"
+            r_val = f"{float(item['مؤشر RSI']):.1f}"
+            pe_val = f"{float(item['مكرر P/E']):.1f}"
+            sig_val = str(item['قوة الإشارة'])
+            
+            b_html = '<div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">'
+            b_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;">'
+            b_html += f"<span>🟢 {item['اسم السهم']} (رمز: {item['الرمز']})</span><span style='color:#4ade80;'>{item['القرار والفلترة']}</span></div>"
+            b_html += f"<div style='margin-top:2px; font-size:12px; color:#94a3b8;'>القطاع: {item['القطاع']}</div>"
+            b_html += '<hr style="margin:8px 0; border:0; border-top:1px solid #ffffff10;">'
+            b_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; font-size:12px; text-align:center; color:#e2e8f0;">'
+            b_html += f"<div><b>السعر الحالي</b><br><span style='color:#38bdf8; font-weight:bold;'>{p_val}</span></div>"
+            b_html += f"<div><b>الهدف (TP)</b><br><span style='color:#4ade80; font-weight:bold;'>{t_val}</span></div>"
+            b_html += f"<div><b>الوقف (SL)</b><br><span style='color:#f87171; font-weight:bold;'>{s_val}</span></div>"
+            b_html += f"<div><b>مؤشر RSI</b><br>{r_val}</div><div><b>مكرر P/E</b><br>{pe_val}</div>"
+            b_html += f"<div><b>القوة الرقمية</b><br><span style='color:#c084fc; font-weight:bold;'>{sig_val} نقاط</span></div></div></div>"
+            st.markdown(b_html, unsafe_allow_html=True)
+    else:
+        st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
+
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل بنظام البطاقات الملكية المدمجة
+    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 شاشة مراقبة وتصنيف كامل شركات تاسي</h3>", unsafe_allow_html=True)
+    for idx, item in df_display.iterrows():
+        border_clr = "#22c55e" if "🟢" in item['القرار والفلترة'] else ("#ef4444" if "🔴" in item['القرار والفلترة'] else "#f59e0b")
+        p_val = f"{float(item['السعر الحالي']):.2f}"
+        t_val = f"{float(item['الهدف (TP)']):.2f}"
+        s_val = f"{float(item['الوقف (SL)']):.2f}"
+        r_val = f"{float(item['مؤشر RSI']):.1f}"
+        pe_val = f"{float(item['مكرر P/E']):.1f}"
+        sig_val = str(item['قوة الإشارة'])
+        
+        all_html = f'<div style="background-color:#111827; padding:14px; border-radius:10px; margin-bottom:10px; border-right:5px solid {border_clr}; direction:rtl; text-align:right;">'
+        all_html += '<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; color:#f3f4f6;">'
+        all_html += f"<span>🦅 {item['اسم السهم']} (الرمز: {item['الرمز']})</span><span>{item['القرار والفلترة']}</span></div>"
+        all_html += '<hr style="margin:6px 0; border:0; border-top:1px solid #ffffff05;">'
+        all_html += '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; font-size:12px; text-align:center; color:#d1d5db;">'
+        all_html += f"<div><b>السعر:</b> {p_val}</div><div><b>الهدف:</b> {t_val}</div><div><b>الوقف:</b> {s_val}</div>"
+        all_html += f"<div><b>RSI:</b> {r_val}</div><div><b>P/E:</b> {pe_val}</div><div><b>قوة الإشارة:</b> {sig_val}</div></div></div>"
+        st.markdown(all_html, unsafe_allow_html=True)
+else:
+    st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
