@@ -18,7 +18,7 @@ from streamlit_cookies_controller import CookieController
 controller = CookieController()
 DB_FILE = "secure_device_locks.json"
 
-# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك
+# دالة لحفظ أقفال الأجهزة في السيرفر لمنع التشارك التزامن
 def save_device_locks(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
@@ -33,48 +33,51 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 🔒 [هنا جدول المشتركين الدائم للأبد]
-# أي مشترك جديد تولده من لوحة التحكم، انسخ السطر الخاص به وضعه هنا مباشرة لكي لا ينحذف أبداً
+# 📋 [هنا الحل النهائي] قاعدة بيانات المشتركين الثابتة داخل صلب الكود لضمان الحفظ الدائم
+# أضف أي مشترك جديد هنا مباشرة أو استبدل القائمة بالكامل من صندوق التصدير بالأسفل
 STATIC_LICENSES = {
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
-    "TASI-HAMEED-77": {"owner": "حامد الطلحي", "expiry": "2027-01-01"},
-    # ضع المشتركين الجدد تحت هذا السطر دائماً بنفس الطريقة
+    "TASI-HAMEED-77": {"owner": "حامد الطلحي", "expiry": "2027-01-01"}
 }
 
 MASTER_ADMIN_KEY = "ADMIN-TASI-2026"
 
-# خوارزمية استخراج البصمة الفريدة والصلبة لجهاز المستخدم لمنع التشارك
+# --- خوارزمية ذكية لاستخراج البصمة الفريدة والصلبة لجهاز المستخدم لمنع التشارك ---
 def get_strict_device_fingerprint():
     headers = st.context.headers
     user_agent = headers.get("User-Agent", "Unknown_Device")
     accept_lang = headers.get("Accept-Language", "Unknown_Lang")
     return f"{user_agent}_{accept_lang}"
 
-# إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة
+# --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# حقن كود التصميم المطور لإجبار كافة الجداول، والنصوص، والأرقام على التمركز في المنتصف تماماً
+# حقن كود التصميم المطور لإجبار كافة الجداول، والنصوص، والأرقام على التمركز في المنتصف تماماً (Center)
 st.markdown("""
     <style>
         @import url('https://googleapis.com');
         html, body, .stApp { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
         #MainMenu, footer, header, .stAppDeployButton, [data-testid="stHeader"] {display: none !important;}
         [data-testid="stSidebar"] { display: none !important; }
+        
+        /* إجبار خلايا وعناوين الجداول على التمركز التام بوسط الشاشة */
         .stDataFrame th, .stDataFrame td { text-align: center !important; justify-content: center !important; }
         div[data-testid="stMarkdownContainer"] > p { text-align: center !important; }
         .stNumberInput input { text-align: center !important; }
+        
         .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #0284c7 !important; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# هيدر ملكي فاخر مدمج به صورة الصقر الحقيقية الثلاثية الأبعاد التي أرسلتها كشعار رسمي وموسط
+# دمج صورة الصقر الاحترافية ثلاثية الأبعاد كرأس رسمي للمنصة متناسق مع ملء الشاشة
+st.image("https://pngtree.com", use_container_width=True)
+
 st.markdown("""
-    <div style="background-color:#0f172a; padding:25px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center;">
-        <img src="https://pngtree.com" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border: 3px solid #0284c7; margin-bottom:15px; box-shadow: 0 0 15px #0284c7;">
+    <div style="background-color:#0f172a; padding:20px; border-radius:12px; margin-bottom:25px; border-bottom: 4px solid #0284c7; text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:26px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:14px; font-weight:500; text-align:center;">
-            نظام التوليد الموثوق والربط البرمجي الصلب الدائم | شاشة واحدة لكل مشترك 🔒
+            نسخة التمركز البصري والتحصين الكامل للمشتركين | جدار حماية المتصفح والأجهزة الذكية 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -173,10 +176,10 @@ if not is_access_granted:
     """, unsafe_allow_html=True)
     st.stop()
 
-# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة للنسخ إلى جيت هاب مباشرة (تضمن بقاء المشتركين للأبد)
+# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة وتصنيف التصدير للكمبيوتر والجوال
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px; text-align:center;'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التوليد الفوري للمشرف (نسخ ولصق صلب لـ GitHub)</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم السرية للمشرف لتوليد وحفظ الأكواد</h2>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     with col1: sub_name = st.text_input("اسم المشترك الجديد للإنتاج:", "مبارك الدوسري")
@@ -188,15 +191,24 @@ if is_admin:
             clean_part = raw_uuid[:8].upper()
             generated_key = f"TASI-{clean_part}"
             calc_expiry = (datetime.now() + timedelta(days=sub_days)).strftime("%Y-%m-%d")
-            st.success("🎉 تم التوليد بنجاح! انسخ هذا السطر وضعه بيدك في الكود بالقسم الأول تحت سطر حامد الطلحي مباشرة:")
-            st.code(f'    "{generated_key}": {{"owner": "{sub_name}", "expiry": "{calc_expiry}"}},')
+            st.success("🎉 تم التوليد بنجاح! انسخ السطر بالأسفل وضعه في الكود في القسم الأول:")
+            st.code(f'"{generated_key}": {{"owner": "{sub_name}", "expiry": "{calc_expiry}"}},')
             
-    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 قائمة المشتركين المحمية والنشطة برمجياً في الكود حالياً:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#e9d5ff; margin-top:15px;'>📋 الأكواد والأسماء المسجلة والمثبتة حالياً في نظامك للأبد (موسطة تلقائياً):</p>", unsafe_allow_html=True)
     for key, info in STATIC_LICENSES.items():
         inner_col1, inner_col2, inner_col3 = st.columns(3)
         with inner_col1: st.markdown(f"<p style='text-align:center;'>👤 **المشترك:** {info['owner']} | 📅 **ينتهي:** {info['expiry']}</p>", unsafe_allow_html=True)
         with inner_col2: st.code(key)
-        with inner_col3: st.button("📋 نسخ الكود للواتساب", key=f"btn_copy_{key}")
+        with inner_col3: st.button("📋 نسخ", key=f"btn_copy_{key}")
+        
+    # --- [حل مشكلة الكمبيوتر والجوال قاطعاً] صندوق التصدير الكلي لحفظ المشتركين عند تحديث الكود لكي لا يطيروا ---
+    st.markdown("---")
+    st.markdown("<p style='text-align:center; font-weight:bold; color:#f43f5e;'>📥 صندوق التصدير الكلي (انسخ هذا المربع بالكامل وضعه في القسم الأول لحماية المشتركين من الحذف للأبد):</p>", unsafe_allow_html=True)
+    full_backup_text = "STATIC_LICENSES = {\n"
+    for k, v in STATIC_LICENSES.items():
+        full_backup_text += f'    "{k}": {{"owner": "{v["owner"]}", "expiry": "{v["expiry"]}"}},\n'
+    full_backup_text = full_backup_text.rstrip(",\n") + "\n}"
+    st.text_area("قاعدة البيانات الاحتياطية المكتملة للتحديث للكمبيوتر والجوال:", value=full_backup_text, height=120)
     st.markdown("</div>", unsafe_allow_html=True)
 
 calc_exp = st.expander("🧮 حاسبة توزيع السيولة وإدارة المخاطر الصارمة قبل دخول الصفقة (توسيط رقمي تام)", expanded=False)
@@ -215,7 +227,7 @@ TICKERS = {
     '1010': 'بنك الرياض', '1020': 'بنك الجزيرة', '1030': 'الاستثمار', '1050': 'الفرنسي',
     '1060': 'الأول (SAB)', '1080': 'العربي الوطني', '1120': 'مصرف الراجحي', '1140': 'بنك البلاد',
     '1150': 'مصرف الإنماء', '1180': 'البنك الأهلي السعودي',
-    '2082': 'أكوا باور', '2222': 'أرامكو السعودية', '4030': 'البحري', '5110': 'الكهرباء السعودية', '2083': 'الدريس',
+    '2082': 'أكوا باور', '2222': 'أرامکو السعودية', '4030': 'البحري', '5110': 'الكهرباء السعودية', '2083': 'الدريس',
     '2010': 'سابك', '1211': 'معادن', '2020': 'سابك للمغذيات', '2250': 'المجموعة السعودية', '2310': 'سبكيم العالمية', 
     '2050': 'التصنيع', '2380': 'بترورابغ', '2002': 'المتقدمة', '1304': 'اليمامة للحديد',
     '3010': 'أسمنت العربية', '3020': 'أسمنت اليمامة', '3030': 'أسمنت السعودية', '3040': 'أسمنت القصيم',
