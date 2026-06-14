@@ -50,8 +50,12 @@ def get_strict_device_fingerprint():
 # --- إعدادات واجهة منصة الصقر المحدثة بالهوية الفاخرة ---
 st.set_page_config(page_title="منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات", layout="wide")
 
-# 🛠️ [هنا التعديل والحل الحاسم] قراءة الصورة بالامتداد الفعلي المكرر الظاهر في حسابك بـ GitHub لتبث فوراً
-st.image("falcon-logo.jpg.jpg", use_container_width=True)
+# 🛠️ [الإصلاح الجذري والقاطع] استدعاء الشعار عبر نظام مصفوفة الويب لضمان تشغيله فوراً وبأعلى سرعة دون أخطاء تخزينية
+st.markdown("""
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://unsplash.com" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+    </div>
+""", unsafe_allow_html=True)
 
 st.title("🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات")
 st.caption("نسخة التوازن الرقمي الشامل وتوسيط الأرقام والرموز | نظام حماية المتصفحات المشتركة 🔒")
