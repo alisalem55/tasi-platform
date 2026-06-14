@@ -33,9 +33,8 @@ def load_device_locks():
 if 'DEVICE_LOCKS' not in st.session_state:
     st.session_state['DEVICE_LOCKS'] = load_device_locks()
 
-# 📋 [قاعدة البيانات الثابتة] اكتب هنا أسماء عملائك وأكوادهم بحروف كبيرة دائماً لكي لا يختفوا أبداً عند التحديث
+# 📋 [هنا الثبات الأبدي] قاعدة بيانات المشتركين الثابتة داخل صلب الكود لكي لا تضيع نهائياً
 STATIC_LICENSES = {
-    "ADMIN-TASI-2026": {"owner": "المشرف العام", "expiry": "2030-12-31"},
     "TASI-VIP-8899": {"owner": "أبو فهد", "expiry": "2026-12-31"},
     "TASI-PREMIUM-1122": {"owner": "أبو عبدالله", "expiry": "2026-12-31"},
     "TASI-HAMEED-77": {"owner": "حامد الطلحي", "expiry": "2027-01-01"},
@@ -74,7 +73,7 @@ st.markdown("""
     <div style="background-color:#0f172a; padding:30px; border-radius:16px; margin-bottom:25px; border-bottom: 4px solid #0284c7; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); text-align:center; direction:rtl;">
         <h1 style="color:#f8fafc; margin:0; font-weight:700; font-size:28px; text-align:center;">🦅 منصة الصقر الذكية لتحليل الأسهم السعودية والتوصيات</h1>
         <p style="color:#38bdf8; margin:8px 0 0 0; font-size:15px; font-weight:500; text-align:center;">
-            إلغاء حساسية الحروف تماماً لتسهيل الدخول | تمركز بصري شامل ومحاذاة لكافة الأعمدة والقرارات 🔒
+            إلغاء حساسية الحروف تماماً لتسهيل الدخول | تذكر للأعضاء لعام كامل وبطاقات نيون متوازنة 🔒
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -114,14 +113,13 @@ block_reason = ""
 # شاشة الدخول المنبثقة التلقائية لمرة واحدة في السنة
 if not saved_key:
     with st.expander("🔑 اضغط هنا لفتح نافذة تسجيل الدخول وتفعيل المنصة", expanded=True):
-        st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل (يقبل الحروف الصغيرة والكبيرة ويفتح من شاشة واحدة فقط):</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center; font-weight:bold;'>أدخل مفتاح التفعيل الخاص بك (يقبل الأحرح الصغيرة والكبيرة دون اختلاف):</div>", unsafe_allow_html=True)
         user_key = st.text_input("رمز الاشتراك السري:", "", type="password", key="modal_key_input").strip()
         
         user_key_upper = user_key.upper() if user_key else ""
         
         if st.button("💾 تفعيل وحفظ الهوية في المتصفح"):
             if user_key_upper == MASTER_ADMIN_KEY or user_key_upper in STATIC_LICENSES:
-                # 🛠️ [تم الإصلاح هنا] تعديل جلب الحالة السحابية بدقة لمنع انهيار السيرفر
                 locks = st.session_state['DEVICE_LOCKS'] if 'DEVICE_LOCKS' in st.session_state else load_device_locks()
                 if user_key_upper in locks and locks[user_key_upper] != current_device_fingerprint:
                     st.error("🚨 عذراً، هذا الكود مستخدم حالياً في جهاز آخر! يرجى تسجيل الخروج منه أولاً.")
@@ -150,7 +148,7 @@ else:
     with out_col1:
         st.markdown(f"<p style='text-align:center; font-weight:bold; color:#22c55e; padding-top:8px;'>🔒 مرحباً بك، الدخول نشط وتلقائي وبملء الشاشة الموزونة.</p>", unsafe_allow_html=True)
 
-# التحقق الصارم من التزامن
+# التحقق الصارم من التزامن دون تجميد الكود للأبد
 if user_key_active == MASTER_ADMIN_KEY:
     is_admin = True
     is_access_granted = True
@@ -175,7 +173,7 @@ if not is_access_granted:
     """, unsafe_allow_html=True)
     st.stop()
 
-# لوحة التحكم ومستعرض المشتركين الثابتين
+# لوحة المشرف لإنتاج صياغة الأكواد الجاهزة وتوسيط مستعرض البيانات اليدوي
 if is_admin:
     st.markdown("<div style='background-color:#1e1b4b; padding:20px; border-radius:14px; border:1px solid #4338ca; margin-bottom:25px; text-align:center;'>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:center; color:#c084fc; margin:0 0 15px 0; font-size:20px; font-weight:bold;'>⚙️ لوحة التحكم وإدارة أقفال الأجهزة للمشرف</h2>", unsafe_allow_html=True)
@@ -310,7 +308,7 @@ if 'df_display' in st.session_state:
         search_res = df_display[df_display['الرمز'] == search_code]
         if not search_res.empty:
             item = search_res.iloc[0]
-            bg_color = "#1e4620" if "🟢" in item['القرار والفلترة'] else ("#7f1d1d" if "🔴" in item['القرار والفلترة'] else "#7c2d12")
+            bg_color = "#14532d" if "🟢" in item['القرار والفلترة'] else ("#7f1d1d" if "🔴" in item['القرار والفلترة'] else "#7c2d12")
             st.markdown(f"""
                 <div style="background-color:{bg_color}; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #ffffff20; direction:rtl; text-align:right;">
                     <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px;">
@@ -336,14 +334,14 @@ if 'df_display' in st.session_state:
             fig.update_layout(template="plotly_dark", paper_bgcolor="#0f172a", plot_bgcolor="#0f172a", height=250, title=dict(text="منحنى الحركة السعرية التفاعلي لآخر 100 شمعة", x=0.5, xanchor='center'))
             st.plotly_chart(fig, use_container_width=True)
 
-    # 2. بطاقات أولويات فرص الشراء الذهبية لكامل السوق
+    # 2. جدول أولويات فرص الشراء الذهبية لكامل السوق مصممة بنظام البطاقات المرنة للجوال
     st.markdown("<h3 style='text-align:center; color:#22c55e; font-size:18px; font-weight:bold;'>🔥 فرص الشراء الذهبية لكامل السوق (حسب أولوية النقاط)</h3>", unsafe_allow_html=True)
     buy_df = df_display[df_display['القرار والفلترة'].str.contains("🟢", na=False)].sort_values(by='قوة الإشارة', ascending=False)
     
     if not buy_df.empty:
         for idx, item in buy_df.iterrows():
             st.markdown(f"""
-                <div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right;">
+                <div style="background-color:#14532d; padding:15px; border-radius:12px; margin-bottom:12px; border-right:6px solid #22c55e; direction:rtl; text-align:right; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">
                     <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px; color:#f8fafc;">
                         <span>🟢 {item['اسم السهم']} (رمز: {item['الرمز']})</span>
                         <span style="color:#4ade80;">{item['القرار والفلترة']}</span>
@@ -363,5 +361,26 @@ if 'df_display' in st.session_state:
     else:
         st.markdown("<p style='text-align:center; color:#94a3b8;'>لا توجد فرص شراء مستوفية الشروط في السوق حالياً.</p>", unsafe_allow_html=True)
 
-    # 3. بطاقات مراقبة السوق السعودي الشامل الكامل المتناسق في المنتصف تماماً
-    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px;
+    # 3. جدول مراقبة السوق السعودي الشامل الكامل بنظام البطاقات الملكية المدمجة
+    st.markdown("<h3 style='text-align:center; color:#94a3b8; font-size:18px; font-weight:bold;'>📋 شاشة مراقبة وتصنيف كامل شركات تاسي</h3>", unsafe_allow_html=True)
+    for idx, item in df_display.iterrows():
+        border_clr = "#22c55e" if "🟢" in item['القرار والفلترة'] else ("#ef4444" if "🔴" in item['القرار والفلترة'] else "#f59e0b")
+        st.markdown(f"""
+            <div style="background-color:#111827; padding:14px; border-radius:10px; margin-bottom:10px; border-right:5px solid {border_clr}; direction:rtl; text-align:right;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; color:#f3f4f6;">
+                    <span>🦅 {item['اسم السهم']} (الرمز: {item['الرمز']})</span>
+                    <span>{item['القرار والفلترة']}</span>
+                </div>
+                <hr style="margin:6px 0; border:0; border-top:1px solid #ffffff05;">
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; font-size:12px; text-align:center; color:#d1d5db;">
+                    <div><b>السعر:</b> {float(item['السعر الحالي']):.2f}</div>
+                    <div><b>الهدف:</b> {float(item['الهدف (TP)']):.2f}</div>
+                    <div><b>الوقف:</b> {float(item['الوقف (SL)']):.2f}</div>
+                    <div><b>RSI:</b> {float(item['مؤشر RSI']):.1f}</div>
+                    <div><b>P/E:</b> {float(item['مكرر P/E']):.1f}</div>
+                    <div><b>قوة الإشارة:</b> {item['قوة الإشارة']}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+else:
+    st.markdown("<p style='text-align:center; color:#94a3b8;'>المنصة في وضع الجاهزية والاستعداد المالي. اضغط على زر التحديث بالأعلى لتوليد ومراقبة كامل صفقات السوق السعودي.</p>", unsafe_allow_html=True)
